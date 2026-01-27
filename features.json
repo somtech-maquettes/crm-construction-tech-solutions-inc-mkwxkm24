@@ -1,0 +1,12 @@
+{
+  "features": [
+    { "libelle": "Tableau de bord avec indicateurs clés", "montant": 3500, "obligatoire": true },
+    { "libelle": "Gestion centralisée des clients", "montant": 2800, "obligatoire": true },
+    { "libelle": "Carte interactive des clients", "montant": 3200, "obligatoire": true },
+    { "libelle": "Planning et suivi des visites", "montant": 2500, "obligatoire": true },
+    { "libelle": "Saisie vocale des comptes-rendus", "montant": 2200, "obligatoire": false },
+    { "libelle": "Recherche intelligente multicritères", "montant": 1500, "obligatoire": false },
+    { "libelle": "Historique des interactions clients", "montant": 1800, "obligatoire": false },
+    { "libelle": "Synchronisation mobile hors-ligne", "montant": 2000, "obligatoire": false }
+  ]
+}
