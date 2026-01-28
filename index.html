@@ -123,7 +123,8 @@
         chevronDown: <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>,
         chevronUp: <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7" /></svg>,
         notification: <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>,
-        document: <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+        document: <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>,
+        folder: <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
       };
       return icons[name] || null;
     };
@@ -138,6 +139,18 @@
       { id: 6, nom: "Électricité Côté", contact: "Lucie Côté", telephone: "514-555-2345", email: "lcote@electricite-cote.ca", ville: "Montréal", derniereInteraction: "2024-01-22", statut: "Actif", ca: 1500000, lat: 45.5519, lng: -73.6123, adresse: "3210 Avenue du Parc" },
       { id: 7, nom: "Menuiserie Bergeron", contact: "André Bergeron", telephone: "418-555-6789", email: "abergeron@menuiserie-bergeron.ca", ville: "Québec", derniereInteraction: "2024-01-14", statut: "Prospect", ca: 750000, lat: 46.8523, lng: -71.2463, adresse: "567 Chemin Sainte-Foy" },
       { id: 8, nom: "Peinture Dubois", contact: "Nathalie Dubois", telephone: "819-555-0123", email: "ndubois@peinture-dubois.ca", ville: "Gatineau", derniereInteraction: "2024-01-19", statut: "Actif", ca: 890000, lat: 45.4765, lng: -75.7013, adresse: "123 Rue Laurier" }
+    ];
+
+    // Données mockées pour les projets
+    const mockProjets = [
+      { id: 1, nom: "Tour résidentielle Les Jardins", client: "Construction Tremblay & Fils", clientId: 1, type: "Résidentiel", valeur: 2450000, dateDebut: "2024-02-01", dateFin: "2024-08-31", statut: "En cours", avancement: 45, responsable: "Jean Tremblay", ville: "Québec", description: "Construction d'une tour de 12 étages avec 48 unités résidentielles" },
+      { id: 2, nom: "Rénovation Centre Commercial Laurier", client: "Béton Lavoie Inc", clientId: 2, type: "Commercial", valeur: 3200000, dateDebut: "2024-01-15", dateFin: "2024-12-15", statut: "En cours", avancement: 30, responsable: "Marie Lavoie", ville: "Montréal", description: "Rénovation complète de 15000 m² d'espaces commerciaux" },
+      { id: 3, nom: "Complexe industriel Parc-Tech", client: "Excavation Gagnon", clientId: 3, type: "Industriel", valeur: 1800000, dateDebut: "2024-03-01", dateFin: "2024-11-30", statut: "Planification", avancement: 15, responsable: "Pierre Gagnon", ville: "Sherbrooke", description: "Construction d'un complexe de 8000 m² pour entreposage et production" },
+      { id: 4, nom: "École primaire Des Érables", client: "Toiture Bouchard", clientId: 4, type: "Institutionnel", valeur: 980000, dateDebut: "2024-05-01", dateFin: "2024-10-31", statut: "Planification", avancement: 5, responsable: "Sophie Bouchard", ville: "Trois-Rivières", description: "Réfection complète de toiture et isolation pour école de 24 classes" },
+      { id: 5, nom: "Condominiums Bord-du-Lac", client: "Construction Tremblay & Fils", clientId: 1, type: "Résidentiel", valeur: 4500000, dateDebut: "2023-09-01", dateFin: "2024-06-30", statut: "En cours", avancement: 75, responsable: "Jean Tremblay", ville: "Québec", description: "Projet de 36 condos de luxe avec vue sur le fleuve" },
+      { id: 6, nom: "Usine Transformation Alimentaire", client: "Électricité Côté", clientId: 6, type: "Industriel", valeur: 1500000, dateDebut: "2024-02-15", dateFin: "2024-09-30", statut: "En cours", avancement: 40, responsable: "Lucie Côté", ville: "Montréal", description: "Installation électrique complète d'une usine de 5000 m²" },
+      { id: 7, nom: "Rénovation Hôtel Château", client: "Menuiserie Bergeron", clientId: 7, type: "Commercial", valeur: 750000, dateDebut: "2024-04-01", dateFin: "2024-12-31", statut: "Planification", avancement: 10, responsable: "André Bergeron", ville: "Québec", description: "Menuiserie sur mesure pour 45 chambres et espaces communs" },
+      { id: 8, nom: "Centre Sportif Municipal", client: "Peinture Dubois", clientId: 8, type: "Institutionnel", valeur: 890000, dateDebut: "2024-01-10", dateFin: "2024-07-15", statut: "En cours", avancement: 55, responsable: "Nathalie Dubois", ville: "Gatineau", description: "Peinture intérieure et extérieure d'un complexe sportif de 6000 m²" }
     ];
 
     // Données pour les graphiques
@@ -219,14 +232,39 @@
     // Application principale
     function App() {
       const [clients, setClients] = React.useState(mockClients);
+      const [projets, setProjets] = React.useState(mockProjets);
       const [showAddModal, setShowAddModal] = React.useState(false);
       const [showEditModal, setShowEditModal] = React.useState(false);
       const [selectedClient, setSelectedClient] = React.useState(null);
+      const [selectedProjet, setSelectedProjet] = React.useState(null);
       const [searchTerm, setSearchTerm] = React.useState('');
       const [filterStatut, setFilterStatut] = React.useState('tous');
       const [showMobileMenu, setShowMobileMenu] = React.useState(false);
       const [activeTab, setActiveTab] = React.useState('dashboard');
       const [showDetailModal, setShowDetailModal] = React.useState(false);
+      const [showProjetModal, setShowProjetModal] = React.useState(false);
+      const [filterProjetStatut, setFilterProjetStatut] = React.useState('tous');
+      const [filterProjetType, setFilterProjetType] = React.useState('tous');
+
+      // États pour l'identification de projets
+      const [projetIdentificationData, setProjetIdentificationData] = React.useState({
+        nomProjet: '',
+        clientNom: '',
+        clientContact: '',
+        clientTelephone: '',
+        clientEmail: '',
+        typeProjet: 'Résidentiel',
+        valeurEstimee: '',
+        dateDebut: '',
+        ville: '',
+        adresse: '',
+        description: '',
+        besoins: '',
+        budget: '',
+        echeance: '',
+        concurrence: '',
+        probabilite: '50'
+      });
 
       // États du formulaire
       const [formData, setFormData] = React.useState({
@@ -239,6 +277,15 @@
                           client.contact.toLowerCase().includes(searchTerm.toLowerCase());
         const matchStatut = filterStatut === 'tous' || client.statut === filterStatut;
         return matchSearch && matchStatut;
+      });
+
+      // Filtrage des projets
+      const filteredProjets = projets.filter(projet => {
+        const matchSearch = projet.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          projet.client.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchStatut = filterProjetStatut === 'tous' || projet.statut === filterProjetStatut;
+        const matchType = filterProjetType === 'tous' || projet.type === filterProjetType;
+        return matchSearch && matchStatut && matchType;
       });
 
       // Gérer l'ajout d'un client
@@ -337,6 +384,16 @@
                   <Icon name="building" />
                   <span className="font-medium">Clients</span>
                 </button>
+                <button onClick={() => { setActiveTab('projets'); setShowMobileMenu(false); }}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === 'projets' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50'}`}>
+                  <Icon name="folder" />
+                  <span className="font-medium">Projets</span>
+                </button>
+                <button onClick={() => { setActiveTab('identifier-projet'); setShowMobileMenu(false); }}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === 'identifier-projet' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50'}`}>
+                  <Icon name="search" />
+                  <span className="font-medium">Identifier un projet</span>
+                </button>
                 <button onClick={() => { setActiveTab('map'); setShowMobileMenu(false); }}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === 'map' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:bg-slate-50'}`}>
                   <Icon name="map" />
@@ -400,6 +457,206 @@
                           <Legend />
                         </PieChart>
                       </ResponsiveContainer>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Gestion des projets */}
+              {activeTab === 'projets' && (
+                <div className="space-y-6">
+                  <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                    <h2 className="text-2xl font-display font-bold text-slate-900">Identifier les projets</h2>
+                    <button onClick={() => setShowProjetModal(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 font-medium transition-colors">
+                      <Icon name="plus" className="w-5 h-5" />
+                      Nouveau projet
+                    </button>
+                  </div>
+
+                  {/* Stats projets */}
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+                      <p className="text-sm text-slate-600">Total projets</p>
+                      <p className="text-2xl font-bold text-slate-900 mt-1">{projets.length}</p>
+                    </div>
+                    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+                      <p className="text-sm text-slate-600">En cours</p>
+                      <p className="text-2xl font-bold text-green-600 mt-1">{projets.filter(p => p.statut === 'En cours').length}</p>
+                    </div>
+                    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+                      <p className="text-sm text-slate-600">Planification</p>
+                      <p className="text-2xl font-bold text-yellow-600 mt-1">{projets.filter(p => p.statut === 'Planification').length}</p>
+                    </div>
+                    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+                      <p className="text-sm text-slate-600">Valeur totale</p>
+                      <p className="text-2xl font-bold text-indigo-600 mt-1">{(projets.reduce((sum, p) => sum + p.valeur, 0) / 1000000).toFixed(1)}M$</p>
+                    </div>
+                  </div>
+
+                  {/* Filtres */}
+                  <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      <div className="flex-1 relative">
+                        <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                        <input
+                          type="text"
+                          placeholder="Rechercher un projet ou client..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        />
+                      </div>
+                      <select
+                        value={filterProjetStatut}
+                        onChange={(e) => setFilterProjetStatut(e.target.value)}
+                        className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      >
+                        <option value="tous">Tous les statuts</option>
+                        <option value="En cours">En cours</option>
+                        <option value="Planification">Planification</option>
+                        <option value="Terminé">Terminé</option>
+                      </select>
+                      <select
+                        value={filterProjetType}
+                        onChange={(e) => setFilterProjetType(e.target.value)}
+                        className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      >
+                        <option value="tous">Tous les types</option>
+                        <option value="Résidentiel">Résidentiel</option>
+                        <option value="Commercial">Commercial</option>
+                        <option value="Industriel">Industriel</option>
+                        <option value="Institutionnel">Institutionnel</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Liste projets - Desktop */}
+                  <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="hidden lg:block overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-slate-50 border-b border-slate-200">
+                          <tr>
+                            <th className="text-left px-6 py-3 text-sm font-medium text-slate-600">Projet</th>
+                            <th className="text-left px-6 py-3 text-sm font-medium text-slate-600">Client</th>
+                            <th className="text-left px-6 py-3 text-sm font-medium text-slate-600">Type</th>
+                            <th className="text-left px-6 py-3 text-sm font-medium text-slate-600">Statut</th>
+                            <th className="text-left px-6 py-3 text-sm font-medium text-slate-600">Avancement</th>
+                            <th className="text-left px-6 py-3 text-sm font-medium text-slate-600">Valeur</th>
+                            <th className="text-left px-6 py-3 text-sm font-medium text-slate-600">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-200">
+                          {filteredProjets.map(projet => (
+                            <tr key={projet.id} className="hover:bg-slate-50 transition-colors">
+                              <td className="px-6 py-4">
+                                <div>
+                                  <p className="font-medium text-slate-900">{projet.nom}</p>
+                                  <p className="text-sm text-slate-600">{projet.ville}</p>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 text-slate-700">{projet.client}</td>
+                              <td className="px-6 py-4">
+                                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                  projet.type === 'Résidentiel' ? 'bg-blue-100 text-blue-800' :
+                                  projet.type === 'Commercial' ? 'bg-purple-100 text-purple-800' :
+                                  projet.type === 'Industriel' ? 'bg-orange-100 text-orange-800' :
+                                  'bg-teal-100 text-teal-800'
+                                }`}>
+                                  {projet.type}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4">
+                                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                  projet.statut === 'En cours' ? 'bg-green-100 text-green-800' :
+                                  projet.statut === 'Planification' ? 'bg-yellow-100 text-yellow-800' :
+                                  'bg-slate-100 text-slate-800'
+                                }`}>
+                                  {projet.statut}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4">
+                                <div className="flex items-center gap-2">
+                                  <div className="flex-1 bg-slate-200 rounded-full h-2 max-w-[100px]">
+                                    <div
+                                      className="bg-indigo-600 h-2 rounded-full transition-all"
+                                      style={{ width: `${projet.avancement}%` }}
+                                    />
+                                  </div>
+                                  <span className="text-sm text-slate-700">{projet.avancement}%</span>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 text-slate-700">{(projet.valeur / 1000000).toFixed(1)}M$</td>
+                              <td className="px-6 py-4">
+                                <div className="flex gap-2">
+                                  <button onClick={() => { setSelectedProjet(projet); setShowProjetModal(true); }}
+                                          className="p-2 hover:bg-slate-100 rounded-lg transition-colors" title="Voir détails">
+                                    <Icon name="document" className="w-4 h-4 text-slate-600" />
+                                  </button>
+                                  <button onClick={() => { setSelectedProjet(projet); }}
+                                          className="p-2 hover:bg-slate-100 rounded-lg transition-colors" title="Modifier">
+                                    <Icon name="edit" className="w-4 h-4 text-slate-600" />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Liste projets - Mobile */}
+                    <div className="lg:hidden p-4 space-y-4">
+                      {filteredProjets.map(projet => (
+                        <div key={projet.id} className="border border-slate-200 rounded-lg p-4 space-y-3">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h3 className="font-medium text-slate-900">{projet.nom}</h3>
+                              <p className="text-sm text-slate-600">{projet.client} • {projet.ville}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex gap-2">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              projet.type === 'Résidentiel' ? 'bg-blue-100 text-blue-800' :
+                              projet.type === 'Commercial' ? 'bg-purple-100 text-purple-800' :
+                              projet.type === 'Industriel' ? 'bg-orange-100 text-orange-800' :
+                              'bg-teal-100 text-teal-800'
+                            }`}>
+                              {projet.type}
+                            </span>
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              projet.statut === 'En cours' ? 'bg-green-100 text-green-800' :
+                              projet.statut === 'Planification' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-slate-100 text-slate-800'
+                            }`}>
+                              {projet.statut}
+                            </span>
+                          </div>
+
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="text-slate-600">Avancement</span>
+                              <span className="font-medium text-slate-900">{projet.avancement}%</span>
+                            </div>
+                            <div className="bg-slate-200 rounded-full h-2">
+                              <div
+                                className="bg-indigo-600 h-2 rounded-full transition-all"
+                                style={{ width: `${projet.avancement}%` }}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between text-sm pt-2 border-t border-slate-100">
+                            <span className="text-slate-600">Valeur</span>
+                            <span className="font-medium text-indigo-600">{(projet.valeur / 1000000).toFixed(1)}M$</span>
+                          </div>
+
+                          <button onClick={() => { setSelectedProjet(projet); setShowProjetModal(true); }}
+                                  className="w-full py-2 bg-indigo-50 text-indigo-600 rounded-lg font-medium">
+                            Voir les détails
+                          </button>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -799,6 +1056,126 @@
                   </button>
                 </div>
               </div>
+            )}
+          </Modal>
+
+          {/* Modal Détails Projet */}
+          <Modal isOpen={showProjetModal} onClose={() => { setShowProjetModal(false); setSelectedProjet(null); }} title={selectedProjet ? "Détails du projet" : "Nouveau projet"}>
+            {selectedProjet ? (
+              <div className="space-y-6">
+                <div className="bg-slate-50 rounded-lg p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-display font-bold text-lg text-slate-900">{selectedProjet.nom}</h3>
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      selectedProjet.statut === 'En cours' ? 'bg-green-100 text-green-800' :
+                      selectedProjet.statut === 'Planification' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-slate-100 text-slate-800'
+                    }`}>
+                      {selectedProjet.statut}
+                    </span>
+                  </div>
+                  <p className="text-slate-600">{selectedProjet.description}</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm font-medium text-slate-600">Client</p>
+                    <p className="text-slate-900">{selectedProjet.client}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-600">Type de projet</p>
+                    <p className="text-slate-900">{selectedProjet.type}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-600">Responsable</p>
+                    <p className="text-slate-900">{selectedProjet.responsable}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-600">Ville</p>
+                    <p className="text-slate-900">{selectedProjet.ville}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-600">Date de début</p>
+                    <p className="text-slate-900">{new Date(selectedProjet.dateDebut).toLocaleDateString('fr-CA')}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-600">Date de fin prévue</p>
+                    <p className="text-slate-900">{new Date(selectedProjet.dateFin).toLocaleDateString('fr-CA')}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium text-slate-600 mb-2">Avancement du projet</p>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 bg-slate-200 rounded-full h-3">
+                      <div
+                        className="bg-indigo-600 h-3 rounded-full transition-all"
+                        style={{ width: `${selectedProjet.avancement}%` }}
+                      />
+                    </div>
+                    <span className="text-lg font-semibold text-slate-900">{selectedProjet.avancement}%</span>
+                  </div>
+                </div>
+
+                <div className="bg-indigo-50 rounded-lg p-4">
+                  <p className="text-sm font-medium text-slate-600 mb-1">Valeur du projet</p>
+                  <p className="text-3xl font-bold text-indigo-600">{(selectedProjet.valeur / 1000000).toFixed(2)}M$</p>
+                </div>
+
+                <div className="flex gap-4">
+                  <button className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-medium transition-colors">
+                    Modifier le projet
+                  </button>
+                  <button className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2 rounded-lg font-medium transition-colors">
+                    Voir le client
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <form className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Nom du projet</label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
+                  <textarea
+                    rows="3"
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Client</label>
+                    <select className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                      {clients.map(client => (
+                        <option key={client.id} value={client.id}>{client.nom}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Type</label>
+                    <select className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                      <option value="Résidentiel">Résidentiel</option>
+                      <option value="Commercial">Commercial</option>
+                      <option value="Industriel">Industriel</option>
+                      <option value="Institutionnel">Institutionnel</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="flex gap-4 pt-4">
+                  <button type="submit" className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-medium transition-colors">
+                    Créer le projet
+                  </button>
+                  <button type="button" onClick={() => setShowProjetModal(false)} className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2 rounded-lg font-medium transition-colors">
+                    Annuler
+                  </button>
+                </div>
+              </form>
             )}
           </Modal>
 
