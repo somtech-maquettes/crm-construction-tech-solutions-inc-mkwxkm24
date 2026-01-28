@@ -459,6 +459,73 @@
                       </ResponsiveContainer>
                     </div>
                   </div>
+
+                  {/* Section Projets */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xl font-display font-bold text-slate-900">Projets en cours</h3>
+                      <button onClick={() => setActiveTab('projets')} className="text-indigo-600 hover:text-indigo-700 font-medium text-sm">
+                        Voir tous les projets →
+                      </button>
+                    </div>
+
+                    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                      <div className="overflow-x-auto">
+                        <table className="w-full">
+                          <thead className="bg-slate-50 border-b border-slate-200">
+                            <tr>
+                              <th className="text-left px-6 py-3 text-sm font-medium text-slate-600">Projet</th>
+                              <th className="text-left px-6 py-3 text-sm font-medium text-slate-600">Client</th>
+                              <th className="text-left px-6 py-3 text-sm font-medium text-slate-600">Type</th>
+                              <th className="text-left px-6 py-3 text-sm font-medium text-slate-600">Statut</th>
+                              <th className="text-left px-6 py-3 text-sm font-medium text-slate-600">Avancement</th>
+                              <th className="text-left px-6 py-3 text-sm font-medium text-slate-600">Valeur</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-200">
+                            {projets.filter(p => p.statut === 'En cours').slice(0, 5).map(projet => (
+                              <tr key={projet.id} className="hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => { setSelectedProjet(projet); setShowProjetModal(true); }}>
+                                <td className="px-6 py-4">
+                                  <div>
+                                    <p className="font-medium text-slate-900">{projet.nom}</p>
+                                    <p className="text-sm text-slate-600">{projet.ville}</p>
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 text-slate-700">{projet.client}</td>
+                                <td className="px-6 py-4">
+                                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                    projet.type === 'Résidentiel' ? 'bg-blue-100 text-blue-800' :
+                                    projet.type === 'Commercial' ? 'bg-purple-100 text-purple-800' :
+                                    projet.type === 'Industriel' ? 'bg-orange-100 text-orange-800' :
+                                    'bg-teal-100 text-teal-800'
+                                  }`}>
+                                    {projet.type}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4">
+                                  <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    {projet.statut}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4">
+                                  <div className="flex items-center gap-2">
+                                    <div className="flex-1 bg-slate-200 rounded-full h-2 max-w-[100px]">
+                                      <div
+                                        className="bg-indigo-600 h-2 rounded-full transition-all"
+                                        style={{ width: `${projet.avancement}%` }}
+                                      />
+                                    </div>
+                                    <span className="text-sm text-slate-700">{projet.avancement}%</span>
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 text-slate-700">{(projet.valeur / 1000000).toFixed(1)}M$</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 
