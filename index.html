@@ -250,6 +250,12 @@
       const [filterProjetType, setFilterProjetType] = React.useState('tous');
       const [clientPhotos, setClientPhotos] = React.useState({});
 
+      // États pour la dictée vocale et les interactions
+      const [isRecording, setIsRecording] = React.useState(false);
+      const [transcription, setTranscription] = React.useState('');
+      const [showClientSelectModal, setShowClientSelectModal] = React.useState(false);
+      const [clientInteractions, setClientInteractions] = React.useState({});
+
       // États pour l'identification de projets
       const [projetIdentificationData, setProjetIdentificationData] = React.useState({
         nomProjet: '',
@@ -356,6 +362,83 @@
         }
       };
 
+      // Gérer la dictée vocale
+      const handleStartRecording = () => {
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+          alert('La reconnaissance vocale n\'est pas supportée par votre navigateur. Veuillez utiliser Chrome ou Edge.');
+          return;
+        }
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+
+        recognition.lang = 'fr-CA';
+        recognition.continuous = true;
+        recognition.interimResults = false;
+
+        recognition.onstart = () => {
+          setIsRecording(true);
+          setTranscription('');
+        };
+
+        recognition.onresult = (event) => {
+          let transcript = '';
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            transcript += event.results[i][0].transcript + ' ';
+          }
+          setTranscription(prev => prev + transcript);
+        };
+
+        recognition.onerror = (event) => {
+          console.error('Erreur de reconnaissance vocale:', event.error);
+          setIsRecording(false);
+        };
+
+        recognition.onend = () => {
+          setIsRecording(false);
+          if (transcription.trim()) {
+            setShowClientSelectModal(true);
+          }
+        };
+
+        recognition.start();
+        window.currentRecognition = recognition;
+      };
+
+      const handleStopRecording = () => {
+        if (window.currentRecognition) {
+          window.currentRecognition.stop();
+          setIsRecording(false);
+        }
+      };
+
+      const handleSaveInteraction = (clientId) => {
+        if (!transcription.trim()) return;
+
+        const newInteraction = {
+          id: Date.now(),
+          date: new Date().toISOString(),
+          type: 'Note vocale',
+          contenu: transcription.trim()
+        };
+
+        setClientInteractions(prev => ({
+          ...prev,
+          [clientId]: [...(prev[clientId] || []), newInteraction]
+        }));
+
+        // Mettre à jour la dernière interaction du client
+        setClients(clients.map(c =>
+          c.id === clientId
+            ? { ...c, derniereInteraction: new Date().toISOString().split('T')[0] }
+            : c
+        ));
+
+        setShowClientSelectModal(false);
+        setTranscription('');
+        alert('Interaction enregistrée avec succès!');
+      };
+
       // Composant KPI Card
       const KPICard = ({ title, value, subtitle, trend, icon }) => (
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 hover:shadow-md transition-shadow animate-fade-in-up">
@@ -452,11 +535,35 @@
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <h2 className="text-2xl font-display font-bold text-slate-900">Tableau de bord</h2>
-                    <button onClick={() => setShowAddModal(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 font-medium transition-colors">
-                      <Icon name="plus" className="w-5 h-5" />
-                      <span className="hidden sm:inline">Nouveau client</span>
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={isRecording ? handleStopRecording : handleStartRecording}
+                        className={`${isRecording ? 'bg-red-600 hover:bg-red-700 animate-pulse' : 'bg-green-600 hover:bg-green-700'} text-white px-4 py-2 rounded-lg flex items-center gap-2 font-medium transition-colors`}
+                      >
+                        <Icon name="mic" className="w-5 h-5" />
+                        <span className="hidden sm:inline">{isRecording ? 'Arrêter' : 'Dictée vocale'}</span>
+                      </button>
+                      <button onClick={() => setShowAddModal(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 font-medium transition-colors">
+                        <Icon name="plus" className="w-5 h-5" />
+                        <span className="hidden sm:inline">Nouveau client</span>
+                      </button>
+                    </div>
                   </div>
+
+                  {/* Zone de transcription en temps réel */}
+                  {isRecording && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 animate-fade-in">
+                      <div className="flex items-start gap-3">
+                        <Icon name="mic" className="w-5 h-5 text-red-600 animate-pulse mt-1" />
+                        <div className="flex-1">
+                          <p className="font-medium text-red-900 mb-2">Enregistrement en cours...</p>
+                          <p className="text-slate-700 text-sm">
+                            {transcription || "Parlez maintenant..."}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* KPIs */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
