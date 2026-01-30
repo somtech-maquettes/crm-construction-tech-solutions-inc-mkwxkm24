@@ -1361,6 +1361,280 @@ Prochaine étape: Inspection intermédiaire prévue le 15 février 2024`,
       );
     };
 
+    // Composant Gantt Chart
+    const GanttChart = ({ projects, startDate, endDate, onTaskClick, hoveredTask, onTaskHover, onTaskLeave, viewMode, compactMode, showCriticalPath }) => {
+      const chartRef = React.useRef(null);
+      const [timelineMonths, setTimelineMonths] = React.useState([]);
+      const [dayWidth, setDayWidth] = React.useState(3);
+      const [expandedProjects, setExpandedProjects] = React.useState(projects.map(p => p.id));
+
+      // Calculer les mois de la timeline
+      React.useEffect(() => {
+        const months = [];
+        const current = new Date(startDate);
+        const end = new Date(endDate);
+
+        while (current <= end) {
+          months.push({
+            date: new Date(current),
+            label: current.toLocaleDateString('fr-CA', { month: 'short', year: 'numeric' }),
+            days: new Date(current.getFullYear(), current.getMonth() + 1, 0).getDate()
+          });
+          current.setMonth(current.getMonth() + 1);
+        }
+        setTimelineMonths(months);
+
+        // Ajuster la largeur selon le mode
+        if (viewMode === 'month') setDayWidth(3);
+        else if (viewMode === 'week') setDayWidth(10);
+        else if (viewMode === 'day') setDayWidth(30);
+      }, [startDate, endDate, viewMode]);
+
+      // Calculer la position et largeur d'une tâche
+      const calculateTaskPosition = (taskStart, taskEnd) => {
+        const start = new Date(taskStart);
+        const end = new Date(taskEnd);
+        const chartStart = new Date(startDate);
+
+        const daysDiff = Math.floor((start - chartStart) / (1000 * 60 * 60 * 24));
+        const duration = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
+
+        return {
+          left: daysDiff * dayWidth,
+          width: duration * dayWidth
+        };
+      };
+
+      // Vérifier si une tâche est en retard
+      const isTaskOverdue = (task) => {
+        const dateFin = new Date(task.dateFin);
+        const today = new Date();
+        return dateFin < today && task.avancement < 100 && task.statut !== 'Terminé';
+      };
+
+      // Obtenir la couleur de la tâche
+      const getTaskColor = (task) => {
+        if (isTaskOverdue(task)) return 'bg-red-500';
+        switch (task.statut) {
+          case 'Terminé': return 'bg-green-500';
+          case 'En cours': return 'bg-blue-500';
+          case 'Planifié': return 'bg-orange-400 opacity-60';
+          default: return 'bg-slate-400';
+        }
+      };
+
+      // Toggle expand/collapse projet
+      const toggleProject = (projectId) => {
+        setExpandedProjects(prev =>
+          prev.includes(projectId)
+            ? prev.filter(id => id !== projectId)
+            : [...prev, projectId]
+        );
+      };
+
+      const totalDays = timelineMonths.reduce((sum, month) => sum + month.days, 0);
+      const chartWidth = totalDays * dayWidth;
+      const rowHeight = compactMode ? 32 : 40;
+      const todayPosition = Math.floor((new Date() - new Date(startDate)) / (1000 * 60 * 60 * 24)) * dayWidth;
+
+      return (
+        <div className="flex" ref={chartRef}>
+          {/* Colonne fixe gauche - Noms des projets/tâches */}
+          <div className="flex-shrink-0 w-64 border-r border-slate-200 bg-slate-50">
+            <div className="h-12 border-b border-slate-200 px-4 flex items-center">
+              <span className="font-medium text-slate-700">Projets / Tâches</span>
+            </div>
+            {projects.map(project => (
+              <div key={project.id}>
+                <div
+                  className="border-b border-slate-200 px-4 flex items-center cursor-pointer hover:bg-slate-100"
+                  style={{ height: rowHeight }}
+                  onClick={() => toggleProject(project.id)}
+                >
+                  <Icon name={expandedProjects.includes(project.id) ? 'chevronDown' : 'chevronUp'} className="w-4 h-4 mr-2 text-slate-500" />
+                  <span className="font-medium text-slate-900 truncate">{project.nom}</span>
+                </div>
+                {expandedProjects.includes(project.id) && project.taches.map(task => (
+                  <div
+                    key={task.id}
+                    className="border-b border-slate-100 px-4 pl-10 flex items-center hover:bg-slate-50"
+                    style={{ height: rowHeight }}
+                  >
+                    <span className="text-sm text-slate-700 truncate">{task.nom}</span>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+
+          {/* Zone scrollable - Timeline et barres */}
+          <div className="flex-1 overflow-x-auto">
+            <div style={{ width: chartWidth }} className="relative">
+              {/* En-tête timeline */}
+              <div className="h-12 border-b border-slate-200 bg-slate-50 flex relative">
+                {timelineMonths.map((month, idx) => (
+                  <div
+                    key={idx}
+                    className="border-r border-slate-200 px-2 flex items-center justify-center"
+                    style={{ width: month.days * dayWidth }}
+                  >
+                    <span className="text-sm font-medium text-slate-700">{month.label}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Grille et barres */}
+              <div className="relative">
+                {/* Grille verticale */}
+                {timelineMonths.map((month, idx) => {
+                  const monthStart = timelineMonths.slice(0, idx).reduce((sum, m) => sum + m.days, 0);
+                  return Array.from({ length: month.days }).map((_, dayIdx) => (
+                    <div
+                      key={`${idx}-${dayIdx}`}
+                      className="absolute top-0 bottom-0 border-l border-slate-100"
+                      style={{ left: (monthStart + dayIdx) * dayWidth }}
+                    />
+                  ));
+                })}
+
+                {/* Ligne aujourd'hui */}
+                {todayPosition > 0 && todayPosition < chartWidth && (
+                  <div
+                    className="absolute top-0 bottom-0 w-0.5 bg-red-600 z-10"
+                    style={{ left: todayPosition }}
+                  >
+                    <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-red-600 text-white text-xs px-2 py-1 rounded">
+                      Aujourd'hui
+                    </div>
+                  </div>
+                )}
+
+                {/* Barres de tâches */}
+                {projects.map((project, projectIdx) => {
+                  let currentRow = 0;
+                  if (!expandedProjects.includes(project.id)) {
+                    currentRow++;
+                    return null;
+                  }
+
+                  return (
+                    <React.Fragment key={project.id}>
+                      <div style={{ height: rowHeight }} />
+                      {project.taches.map((task, taskIdx) => {
+                        const { left, width } = calculateTaskPosition(task.dateDebut, task.dateFin);
+                        const topPosition = (projects.slice(0, projectIdx).reduce((sum, p) =>
+                          sum + 1 + (expandedProjects.includes(p.id) ? p.taches.length : 0), 0
+                        ) + taskIdx + 1) * rowHeight;
+
+                        return (
+                          <div
+                            key={task.id}
+                            className={`absolute rounded cursor-pointer transition-all ${getTaskColor(task)} ${
+                              isTaskOverdue(task) ? 'animate-pulse' : ''
+                            } ${hoveredTask?.id === task.id ? 'ring-2 ring-indigo-500 z-20' : ''}`}
+                            style={{
+                              left: `${left}px`,
+                              width: `${width}px`,
+                              top: `${topPosition + (rowHeight - 24) / 2}px`,
+                              height: '24px'
+                            }}
+                            onClick={() => onTaskClick(task)}
+                            onMouseEnter={() => onTaskHover(task)}
+                            onMouseLeave={onTaskLeave}
+                          >
+                            {/* Barre de progression */}
+                            <div
+                              className="absolute inset-0 bg-black bg-opacity-20 rounded-l"
+                              style={{ width: `${task.avancement}%` }}
+                            />
+                            {/* Texte si assez large */}
+                            {width > 60 && (
+                              <span className="absolute inset-0 flex items-center px-2 text-xs text-white font-medium truncate">
+                                {task.avancement}%
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </React.Fragment>
+                  );
+                })}
+
+                {/* Dépendances */}
+                {showCriticalPath && projects.map(project => {
+                  if (!expandedProjects.includes(project.id)) return null;
+                  return project.taches.map(task => {
+                    if (!task.dependances || task.dependances.length === 0) return null;
+                    return task.dependances.map(depId => {
+                      const depTask = project.taches.find(t => t.id === depId);
+                      if (!depTask) return null;
+
+                      const depPos = calculateTaskPosition(depTask.dateDebut, depTask.dateFin);
+                      const taskPos = calculateTaskPosition(task.dateDebut, task.dateFin);
+
+                      return (
+                        <svg
+                          key={`${task.id}-${depId}`}
+                          className="absolute pointer-events-none z-0"
+                          style={{
+                            left: 0,
+                            top: 0,
+                            width: chartWidth,
+                            height: '100%'
+                          }}
+                        >
+                          <line
+                            x1={depPos.left + depPos.width}
+                            y1={rowHeight * 2}
+                            x2={taskPos.left}
+                            y2={rowHeight * 3}
+                            stroke="#94a3b8"
+                            strokeWidth="1"
+                            strokeDasharray="4"
+                          />
+                        </svg>
+                      );
+                    });
+                  });
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // Composant Tooltip pour le Gantt
+    const GanttTooltip = ({ task, position }) => {
+      if (!task) return null;
+
+      return (
+        <div
+          className="absolute z-50 bg-slate-900 text-white px-4 py-3 rounded-lg shadow-xl text-sm max-w-sm animate-fade-in pointer-events-none"
+          style={{
+            left: `${position.x}px`,
+            top: `${position.y - 100}px`
+          }}
+        >
+          <p className="font-semibold mb-2">{task.nom}</p>
+          <div className="space-y-1 text-xs">
+            <p>Dates: {new Date(task.dateDebut).toLocaleDateString('fr-CA')} - {new Date(task.dateFin).toLocaleDateString('fr-CA')}</p>
+            <p>Responsable: {task.responsable}</p>
+            {task.equipe && task.equipe.length > 0 && (
+              <p>Équipe: {task.equipe.join(', ')}</p>
+            )}
+            <p>Avancement: {task.avancement}%</p>
+            {task.budget && (
+              <p>Budget: {(task.budget / 1000).toFixed(0)}k$ / Dépensé: {(task.depenseActuelle / 1000).toFixed(0)}k$</p>
+            )}
+            {task.notes && (
+              <p className="mt-2 italic">{task.notes}</p>
+            )}
+          </div>
+        </div>
+      );
+    };
+
     // Application principale
     function App() {
       const [clients, setClients] = React.useState(mockClients);
@@ -1472,6 +1746,13 @@ Prochaine étape: Inspection intermédiaire prévue le 15 février 2024`,
         start: '2024-01-01',
         end: '2024-12-31'
       });
+      const [selectedProjects, setSelectedProjects] = React.useState([]);
+      const [ganttViewMode, setGanttViewMode] = React.useState('month');
+      const [ganttStartDate, setGanttStartDate] = React.useState(new Date('2024-01-01'));
+      const [ganttEndDate, setGanttEndDate] = React.useState(new Date('2024-12-31'));
+      const [hoveredTask, setHoveredTask] = React.useState(null);
+      const [ganttCompactMode, setGanttCompactMode] = React.useState(false);
+      const [showCriticalPath, setShowCriticalPath] = React.useState(false);
 
       // États du formulaire
       const [formData, setFormData] = React.useState({
@@ -2692,6 +2973,195 @@ Probabilité de concrétisation: ${projetIdentificationData.probabilite}%`;
                         </button>
                         <p className="text-sm text-slate-600 mt-4">Appuyez pour enregistrer</p>
                       </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Gantt des projets */}
+              {activeTab === 'gantt' && (
+                <div className="space-y-6">
+                  {/* En-tête */}
+                  <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                    <h2 className="text-2xl font-display font-bold text-slate-900">Gantt des projets</h2>
+                    <div className="flex items-center gap-3">
+                      <select
+                        value={selectedProjects.length === 0 ? 'tous' : selectedProjects[0]}
+                        onChange={(e) => {
+                          if (e.target.value === 'tous') {
+                            setSelectedProjects([]);
+                          } else {
+                            setSelectedProjects([parseInt(e.target.value)]);
+                          }
+                        }}
+                        className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                      >
+                        <option value="tous">Tous les projets</option>
+                        {ganttProjects.map(project => (
+                          <option key={project.id} value={project.id}>{project.nom}</option>
+                        ))}
+                      </select>
+                      <button
+                        onClick={() => {
+                          const { jsPDF } = window.jspdf;
+                          const doc = new jsPDF('landscape', 'mm', 'a4');
+                          doc.setFontSize(18);
+                          doc.text('Gantt - Projets Construction', 20, 20);
+                          doc.setFontSize(12);
+                          doc.text(`Date: ${new Date().toLocaleDateString('fr-CA')}`, 20, 30);
+                          doc.save('gantt-projets.pdf');
+                        }}
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 font-medium transition-colors"
+                      >
+                        <Icon name="document" className="w-5 h-5" />
+                        Exporter PDF
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Statistiques */}
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+                      <p className="text-sm text-slate-600">Projets affichés</p>
+                      <p className="text-2xl font-bold text-slate-900 mt-1">
+                        {selectedProjects.length === 0 ? ganttProjects.length : selectedProjects.length}
+                      </p>
+                    </div>
+                    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+                      <p className="text-sm text-slate-600">Total tâches</p>
+                      <p className="text-2xl font-bold text-slate-900 mt-1">
+                        {(selectedProjects.length === 0 ? ganttProjects : ganttProjects.filter(p => selectedProjects.includes(p.id)))
+                          .reduce((sum, project) => sum + project.taches.length, 0)}
+                      </p>
+                    </div>
+                    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+                      <p className="text-sm text-slate-600">Tâches en retard</p>
+                      <p className="text-2xl font-bold text-red-600 mt-1">
+                        {(selectedProjects.length === 0 ? ganttProjects : ganttProjects.filter(p => selectedProjects.includes(p.id)))
+                          .reduce((sum, project) => sum + project.taches.filter(t => {
+                            const dateFin = new Date(t.dateFin);
+                            const today = new Date();
+                            return dateFin < today && t.avancement < 100 && t.statut !== 'Terminé';
+                          }).length, 0)}
+                      </p>
+                    </div>
+                    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+                      <p className="text-sm text-slate-600">Avancement moyen</p>
+                      <p className="text-2xl font-bold text-indigo-600 mt-1">
+                        {Math.round(
+                          (selectedProjects.length === 0 ? ganttProjects : ganttProjects.filter(p => selectedProjects.includes(p.id)))
+                            .reduce((sum, project) => {
+                              const avgProject = project.taches.reduce((s, t) => s + t.avancement, 0) / project.taches.length;
+                              return sum + avgProject;
+                            }, 0) / (selectedProjects.length === 0 ? ganttProjects.length : selectedProjects.length)
+                        )}%
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Légende */}
+                  <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+                    <div className="flex flex-wrap items-center gap-6">
+                      <span className="text-sm font-medium text-slate-700">Légende:</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 bg-green-500 rounded"></div>
+                        <span className="text-sm text-slate-600">Terminé</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 bg-blue-500 rounded"></div>
+                        <span className="text-sm text-slate-600">En cours</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 bg-orange-400 rounded"></div>
+                        <span className="text-sm text-slate-600">Planifié</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 bg-red-500 rounded animate-pulse"></div>
+                        <span className="text-sm text-slate-600">En retard</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Gantt Chart */}
+                  <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <GanttChart
+                      projects={selectedProjects.length === 0 ? ganttProjects : ganttProjects.filter(p => selectedProjects.includes(p.id))}
+                      startDate={ganttStartDate}
+                      endDate={ganttEndDate}
+                      onTaskClick={(task) => {
+                        setSelectedTask(task);
+                        setShowTaskModal(true);
+                      }}
+                      hoveredTask={hoveredTask}
+                      onTaskHover={(task) => setHoveredTask(task)}
+                      onTaskLeave={() => setHoveredTask(null)}
+                      viewMode={ganttViewMode}
+                      compactMode={ganttCompactMode}
+                      showCriticalPath={showCriticalPath}
+                    />
+                  </div>
+
+                  {/* Contrôles */}
+                  <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+                    <div className="flex flex-wrap items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <label className="text-sm font-medium text-slate-700">Mode:</label>
+                        <select
+                          value={ganttViewMode}
+                          onChange={(e) => setGanttViewMode(e.target.value)}
+                          className="text-sm border border-slate-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        >
+                          <option value="month">Mois</option>
+                          <option value="week">Semaine</option>
+                          <option value="day">Jour</option>
+                        </select>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const newStart = new Date(ganttStartDate);
+                          const newEnd = new Date(ganttEndDate);
+                          newStart.setMonth(newStart.getMonth() - 1);
+                          newEnd.setMonth(newEnd.getMonth() - 1);
+                          setGanttStartDate(newStart);
+                          setGanttEndDate(newEnd);
+                        }}
+                        className="px-3 py-1.5 text-sm bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors flex items-center gap-1"
+                      >
+                        <Icon name="chevronDown" className="w-4 h-4 rotate-90" />
+                        Mois précédent
+                      </button>
+                      <button
+                        onClick={() => {
+                          const newStart = new Date(ganttStartDate);
+                          const newEnd = new Date(ganttEndDate);
+                          newStart.setMonth(newStart.getMonth() + 1);
+                          newEnd.setMonth(newEnd.getMonth() + 1);
+                          setGanttStartDate(newStart);
+                          setGanttEndDate(newEnd);
+                        }}
+                        className="px-3 py-1.5 text-sm bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors flex items-center gap-1"
+                      >
+                        Mois suivant
+                        <Icon name="chevronDown" className="w-4 h-4 -rotate-90" />
+                      </button>
+                      <label className="flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={ganttCompactMode}
+                          onChange={(e) => setGanttCompactMode(e.target.checked)}
+                          className="rounded"
+                        />
+                        <span className="text-slate-700">Vue compacte</span>
+                      </label>
+                      <label className="flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={showCriticalPath}
+                          onChange={(e) => setShowCriticalPath(e.target.checked)}
+                          className="rounded"
+                        />
+                        <span className="text-slate-700">Chemin critique</span>
+                      </label>
                     </div>
                   </div>
                 </div>
