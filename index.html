@@ -255,6 +255,17 @@
       const [transcription, setTranscription] = React.useState('');
       const [showClientSelectModal, setShowClientSelectModal] = React.useState(false);
       const [clientInteractions, setClientInteractions] = React.useState({});
+      const [showInteractionModal, setShowInteractionModal] = React.useState(false);
+      const [interactionData, setInteractionData] = React.useState({
+        clientId: null,
+        type: 'Appel téléphonique',
+        categorie: 'Vente',
+        contenu: '',
+        suiviRequis: false,
+        dateSuivi: '',
+        priorite: 'Moyenne'
+      });
+      const [editingInteraction, setEditingInteraction] = React.useState(null);
 
       // États pour l'identification de projets
       const [projetIdentificationData, setProjetIdentificationData] = React.useState({
@@ -412,31 +423,106 @@
         }
       };
 
-      const handleSaveInteraction = (clientId) => {
-        if (!transcription.trim()) return;
+      const handleSelectClientForInteraction = (clientId) => {
+        setInteractionData({
+          ...interactionData,
+          clientId: clientId,
+          contenu: transcription.trim(),
+          type: 'Note vocale'
+        });
+        setShowClientSelectModal(false);
+        setShowInteractionModal(true);
+      };
+
+      const handleSaveInteraction = (e) => {
+        e.preventDefault();
+
+        if (!interactionData.contenu.trim()) return;
 
         const newInteraction = {
-          id: Date.now(),
-          date: new Date().toISOString(),
-          type: 'Note vocale',
-          contenu: transcription.trim()
+          id: editingInteraction ? editingInteraction.id : Date.now(),
+          date: editingInteraction ? editingInteraction.date : new Date().toISOString(),
+          type: interactionData.type,
+          categorie: interactionData.categorie,
+          contenu: interactionData.contenu.trim(),
+          suiviRequis: interactionData.suiviRequis,
+          dateSuivi: interactionData.dateSuivi,
+          priorite: interactionData.priorite,
+          modifieLe: editingInteraction ? new Date().toISOString() : undefined
         };
 
-        setClientInteractions(prev => ({
-          ...prev,
-          [clientId]: [...(prev[clientId] || []), newInteraction]
-        }));
+        if (editingInteraction) {
+          // Modifier l'interaction existante
+          setClientInteractions(prev => ({
+            ...prev,
+            [interactionData.clientId]: (prev[interactionData.clientId] || []).map(i =>
+              i.id === editingInteraction.id ? newInteraction : i
+            )
+          }));
+        } else {
+          // Ajouter nouvelle interaction
+          setClientInteractions(prev => ({
+            ...prev,
+            [interactionData.clientId]: [...(prev[interactionData.clientId] || []), newInteraction]
+          }));
+        }
 
         // Mettre à jour la dernière interaction du client
         setClients(clients.map(c =>
-          c.id === clientId
+          c.id === interactionData.clientId
             ? { ...c, derniereInteraction: new Date().toISOString().split('T')[0] }
             : c
         ));
 
-        setShowClientSelectModal(false);
+        setShowInteractionModal(false);
         setTranscription('');
-        alert('Interaction enregistrée avec succès!');
+        setInteractionData({
+          clientId: null,
+          type: 'Appel téléphonique',
+          categorie: 'Vente',
+          contenu: '',
+          suiviRequis: false,
+          dateSuivi: '',
+          priorite: 'Moyenne'
+        });
+        setEditingInteraction(null);
+      };
+
+      const handleDeleteInteraction = (clientId, interactionId) => {
+        if (confirm('Êtes-vous sûr de vouloir supprimer cette interaction?')) {
+          setClientInteractions(prev => ({
+            ...prev,
+            [clientId]: (prev[clientId] || []).filter(i => i.id !== interactionId)
+          }));
+        }
+      };
+
+      const handleEditInteraction = (clientId, interaction) => {
+        setEditingInteraction(interaction);
+        setInteractionData({
+          clientId: clientId,
+          type: interaction.type,
+          categorie: interaction.categorie,
+          contenu: interaction.contenu,
+          suiviRequis: interaction.suiviRequis || false,
+          dateSuivi: interaction.dateSuivi || '',
+          priorite: interaction.priorite || 'Moyenne'
+        });
+        setShowInteractionModal(true);
+      };
+
+      const handleAddInteractionManually = (clientId) => {
+        setInteractionData({
+          clientId: clientId,
+          type: 'Appel téléphonique',
+          categorie: 'Vente',
+          contenu: '',
+          suiviRequis: false,
+          dateSuivi: '',
+          priorite: 'Moyenne'
+        });
+        setEditingInteraction(null);
+        setShowInteractionModal(true);
       };
 
       // Composant KPI Card
@@ -1268,17 +1354,99 @@
                 </div>
 
                 <div>
-                  <h4 className="font-display font-semibold text-slate-900 mb-3">Historique des interactions</h4>
-                  <div className="space-y-2">
-                    <div className="border-l-4 border-indigo-600 pl-4 py-2">
-                      <p className="text-sm text-slate-600">15 janvier 2024</p>
-                      <p className="text-slate-900">Visite de suivi - Discussion du projet d'extension</p>
-                    </div>
-                    <div className="border-l-4 border-slate-300 pl-4 py-2">
-                      <p className="text-sm text-slate-600">8 décembre 2023</p>
-                      <p className="text-slate-900">Réunion de présentation des nouveaux services</p>
-                    </div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-display font-semibold text-slate-900">Historique des interactions</h4>
+                    <button
+                      onClick={() => handleAddInteractionManually(selectedClient.id)}
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                    >
+                      <Icon name="plus" className="w-4 h-4" />
+                      Ajouter
+                    </button>
                   </div>
+
+                  {clientInteractions[selectedClient.id] && clientInteractions[selectedClient.id].length > 0 ? (
+                    <div className="space-y-3">
+                      {clientInteractions[selectedClient.id]
+                        .sort((a, b) => new Date(b.date) - new Date(a.date))
+                        .map(interaction => (
+                        <div key={interaction.id} className="border-l-4 border-indigo-600 pl-4 py-3 bg-slate-50 rounded-r-lg relative group">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                                  interaction.type === 'Note vocale' ? 'bg-purple-100 text-purple-800' :
+                                  interaction.type === 'Appel téléphonique' ? 'bg-blue-100 text-blue-800' :
+                                  interaction.type === 'Rencontre' ? 'bg-green-100 text-green-800' :
+                                  interaction.type === 'Email' ? 'bg-yellow-100 text-yellow-800' :
+                                  'bg-slate-100 text-slate-800'
+                                }`}>
+                                  {interaction.type}
+                                </span>
+                                <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                                  interaction.categorie === 'Vente' ? 'bg-indigo-100 text-indigo-800' :
+                                  interaction.categorie === 'Support' ? 'bg-orange-100 text-orange-800' :
+                                  interaction.categorie === 'Suivi' ? 'bg-teal-100 text-teal-800' :
+                                  'bg-slate-100 text-slate-800'
+                                }`}>
+                                  {interaction.categorie}
+                                </span>
+                                {interaction.suiviRequis && (
+                                  <span className="px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 flex items-center gap-1">
+                                    <Icon name="calendar" className="w-3 h-3" />
+                                    Suivi requis
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-sm text-slate-600 mb-1">
+                                {new Date(interaction.date).toLocaleDateString('fr-CA', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </p>
+                              <p className="text-slate-900">{interaction.contenu}</p>
+                              {interaction.suiviRequis && interaction.dateSuivi && (
+                                <p className="text-sm text-red-600 mt-2 flex items-center gap-1">
+                                  <Icon name="calendar" className="w-4 h-4" />
+                                  Suivi prévu: {new Date(interaction.dateSuivi).toLocaleDateString('fr-CA')}
+                                </p>
+                              )}
+                              {interaction.modifieLe && (
+                                <p className="text-xs text-slate-500 mt-1 italic">
+                                  Modifié le {new Date(interaction.modifieLe).toLocaleDateString('fr-CA')}
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button
+                                onClick={() => handleEditInteraction(selectedClient.id, interaction)}
+                                className="p-1.5 hover:bg-white rounded-lg transition-colors"
+                                title="Modifier"
+                              >
+                                <Icon name="edit" className="w-4 h-4 text-slate-600" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteInteraction(selectedClient.id, interaction.id)}
+                                className="p-1.5 hover:bg-white rounded-lg transition-colors"
+                                title="Supprimer"
+                              >
+                                <Icon name="trash" className="w-4 h-4 text-red-600" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300">
+                      <Icon name="document" className="w-12 h-12 text-slate-400 mx-auto mb-2" />
+                      <p className="text-sm text-slate-600">Aucune interaction enregistrée</p>
+                      <p className="text-xs text-slate-500 mt-1">Utilisez la dictée vocale ou ajoutez une interaction manuellement</p>
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -1462,6 +1630,238 @@
                 </div>
               </form>
             )}
+          </Modal>
+
+          {/* Modal de sélection du client pour la dictée vocale */}
+          <Modal
+            isOpen={showClientSelectModal}
+            onClose={() => {
+              setShowClientSelectModal(false);
+              setTranscription('');
+            }}
+            title="Associer l'interaction à un client"
+          >
+            <div className="space-y-4">
+              <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <Icon name="mic" className="w-5 h-5 text-indigo-600 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-medium text-indigo-900 mb-1">Transcription enregistrée</p>
+                    <p className="text-slate-700 text-sm whitespace-pre-wrap">{transcription}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Sélectionnez le client concerné
+                </label>
+                <div className="max-h-96 overflow-y-auto space-y-2 border border-slate-200 rounded-lg p-2">
+                  {clients.map(client => (
+                    <button
+                      key={client.id}
+                      onClick={() => handleSelectClientForInteraction(client.id)}
+                      className="w-full text-left px-4 py-3 bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 rounded-lg transition-all"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <p className="font-medium text-slate-900">{client.nom}</p>
+                          <p className="text-sm text-slate-600">{client.contact} • {client.ville}</p>
+                        </div>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          client.statut === 'Actif' ? 'bg-green-100 text-green-800' :
+                          client.statut === 'Prospect' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-slate-100 text-slate-800'
+                        }`}>
+                          {client.statut}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => {
+                    setShowClientSelectModal(false);
+                    setTranscription('');
+                  }}
+                  className="flex-1 px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors font-medium"
+                >
+                  Annuler
+                </button>
+              </div>
+            </div>
+          </Modal>
+
+          {/* Modal de création/édition d'interaction */}
+          <Modal
+            isOpen={showInteractionModal}
+            onClose={() => {
+              setShowInteractionModal(false);
+              setInteractionData({
+                clientId: null,
+                type: 'Appel téléphonique',
+                categorie: 'Vente',
+                contenu: '',
+                suiviRequis: false,
+                dateSuivi: '',
+                priorite: 'Moyenne'
+              });
+              setEditingInteraction(null);
+              setTranscription('');
+            }}
+            title={editingInteraction ? "Modifier l'interaction" : "Nouvelle interaction"}
+          >
+            <form onSubmit={handleSaveInteraction} className="space-y-4">
+              <div className="bg-slate-50 rounded-lg p-4">
+                <p className="text-sm font-medium text-slate-600">Client</p>
+                <p className="text-slate-900 font-medium">
+                  {clients.find(c => c.id === interactionData.clientId)?.nom || 'Non sélectionné'}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Type d'interaction
+                  </label>
+                  <select
+                    value={interactionData.type}
+                    onChange={(e) => setInteractionData({ ...interactionData, type: e.target.value })}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    required
+                  >
+                    <option value="Appel téléphonique">Appel téléphonique</option>
+                    <option value="Rencontre">Rencontre</option>
+                    <option value="Email">Email</option>
+                    <option value="Note vocale">Note vocale</option>
+                    <option value="Visite chantier">Visite chantier</option>
+                    <option value="Présentation">Présentation</option>
+                    <option value="Autre">Autre</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Catégorie
+                  </label>
+                  <select
+                    value={interactionData.categorie}
+                    onChange={(e) => setInteractionData({ ...interactionData, categorie: e.target.value })}
+                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    required
+                  >
+                    <option value="Vente">Vente</option>
+                    <option value="Support">Support</option>
+                    <option value="Suivi">Suivi</option>
+                    <option value="Réclamation">Réclamation</option>
+                    <option value="Information">Information</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Contenu de l'interaction
+                </label>
+                <textarea
+                  value={interactionData.contenu}
+                  onChange={(e) => setInteractionData({ ...interactionData, contenu: e.target.value })}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  rows="5"
+                  placeholder="Décrivez l'interaction avec le client..."
+                  required
+                />
+                <p className="text-xs text-slate-500 mt-1">
+                  {interactionData.contenu.length} caractères
+                </p>
+              </div>
+
+              <div className="border border-slate-200 rounded-lg p-4 bg-slate-50">
+                <div className="flex items-center gap-3 mb-3">
+                  <input
+                    type="checkbox"
+                    id="suiviRequis"
+                    checked={interactionData.suiviRequis}
+                    onChange={(e) => setInteractionData({
+                      ...interactionData,
+                      suiviRequis: e.target.checked,
+                      dateSuivi: e.target.checked ? interactionData.dateSuivi : ''
+                    })}
+                    className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500"
+                  />
+                  <label htmlFor="suiviRequis" className="text-sm font-medium text-slate-700 cursor-pointer">
+                    Un suivi est requis pour cette interaction
+                  </label>
+                </div>
+
+                {interactionData.suiviRequis && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
+                        Date de suivi
+                      </label>
+                      <input
+                        type="date"
+                        value={interactionData.dateSuivi}
+                        onChange={(e) => setInteractionData({ ...interactionData, dateSuivi: e.target.value })}
+                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        required={interactionData.suiviRequis}
+                        min={new Date().toISOString().split('T')[0]}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
+                        Priorité
+                      </label>
+                      <select
+                        value={interactionData.priorite}
+                        onChange={(e) => setInteractionData({ ...interactionData, priorite: e.target.value })}
+                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      >
+                        <option value="Faible">Faible</option>
+                        <option value="Moyenne">Moyenne</option>
+                        <option value="Élevée">Élevée</option>
+                        <option value="Urgente">Urgente</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowInteractionModal(false);
+                    setInteractionData({
+                      clientId: null,
+                      type: 'Appel téléphonique',
+                      categorie: 'Vente',
+                      contenu: '',
+                      suiviRequis: false,
+                      dateSuivi: '',
+                      priorite: 'Moyenne'
+                    });
+                    setEditingInteraction(null);
+                    setTranscription('');
+                  }}
+                  className="flex-1 px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors font-medium"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={!interactionData.contenu.trim()}
+                >
+                  {editingInteraction ? 'Modifier' : 'Enregistrer'}
+                </button>
+              </div>
+            </form>
           </Modal>
 
           {/* Footer */}
