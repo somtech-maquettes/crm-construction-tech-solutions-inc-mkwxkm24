@@ -172,6 +172,265 @@
       { name: 'Inactif', value: 20, color: '#e2e8f0' }
     ];
 
+    // Données mockées pour les interactions via dictée vocale
+    const mockClientInteractions = {
+      1: [ // Construction Tremblay & Fils
+        {
+          id: 1001,
+          date: '2024-01-23T10:30:00',
+          type: 'Note vocale',
+          categorie: 'Vente',
+          contenu: 'Appel de Jean Tremblay concernant le projet Tour Les Jardins. Il souhaite ajouter une option pour des balcons agrandis aux étages 8-12. Budget additionnel de 125 000 $. Rendez-vous prévu la semaine prochaine pour discuter des détails techniques.',
+          suiviRequis: true,
+          dateSuivi: '2024-01-30',
+          priorite: 'Haute'
+        },
+        {
+          id: 1002,
+          date: '2024-01-18T14:15:00',
+          type: 'Appel téléphonique',
+          categorie: 'Support',
+          contenu: 'Question technique sur les spécifications du béton pour les fondations. Répondu que nous utilisons du béton 30 MPa avec air entraîné selon les normes CSA A23.1.',
+          suiviRequis: false,
+          priorite: 'Moyenne'
+        }
+      ],
+      2: [ // Béton Lavoie Inc
+        {
+          id: 1003,
+          date: '2024-01-22T09:00:00',
+          type: 'Note vocale',
+          categorie: 'Projet',
+          contenu: 'Marie Lavoie confirme que le coulage du nouveau stationnement est prévu pour le 5 février. Coordination requise avec l\'équipe d\'excavation. Besoin de 450 m³ de béton.',
+          suiviRequis: true,
+          dateSuivi: '2024-02-01',
+          priorite: 'Haute'
+        }
+      ],
+      3: [ // Excavation Gagnon
+        {
+          id: 1004,
+          date: '2024-01-20T16:45:00',
+          type: 'Note vocale',
+          categorie: 'Vente',
+          contenu: 'Discussion avec Pierre Gagnon sur un nouveau projet potentiel: agrandissement du Parc-Tech avec 2 bâtiments additionnels. Valeur estimée 3,2M $. Il attend l\'approbation de ses partenaires d\'ici fin février.',
+          suiviRequis: true,
+          dateSuivi: '2024-02-28',
+          priorite: 'Haute'
+        }
+      ]
+    };
+
+    // Données mockées pour les comptes-rendus détaillés
+    const mockComptesRendus = [
+      {
+        id: 2001,
+        clientId: 1,
+        clientNom: 'Construction Tremblay & Fils',
+        date: '2024-01-24T13:30:00',
+        sujet: 'Révision du plan d\'aménagement Tour Les Jardins',
+        participants: 'Jean Tremblay, François Carrier, Sophie Architecte',
+        contenu: `COMPTE-RENDU DE RÉUNION
+
+Sujet: Révision du plan d'aménagement Tour Les Jardins
+Participants: Jean Tremblay, François Carrier, Sophie Architecte
+
+Contexte:
+Réunion de suivi pour le projet Tour Les Jardins suite à la demande du client d'agrandir les balcons des étages supérieurs et d'ajouter une terrasse commune au 12e étage.
+
+Points discutés:
+- Faisabilité technique de l'agrandissement des balcons (étages 8-12)
+- Impact sur la structure et les charges
+- Coûts additionnels estimés à 125 000 $ pour les balcons et 75 000 $ pour la terrasse commune
+- Délais: ajout de 3 semaines au calendrier initial
+- Options de financement pour le client
+
+Décisions prises:
+- Approbation de principe pour l'agrandissement des balcons
+- Mandat donné à Sophie pour réviser les plans d'ici le 5 février
+- Préparer une soumission formelle incluant les coûts et le nouveau calendrier
+- Le client accepte l'extension de 3 semaines
+
+Actions à suivre:
+- [François] Préparer la soumission révisée d'ici le 30 janvier
+- [Sophie] Réviser les plans architecturaux pour le 5 février
+- [Jean] Confirmer le financement avec sa banque d'ici le 8 février
+- [François] Planifier rencontre de signature pour le 12 février
+
+Prochaine étape: Rencontre de signature prévue le 12 février 2024 à 14h00`,
+        priorite: 'Haute',
+        suiviRequis: true,
+        dateSuivi: '2024-02-12'
+      },
+      {
+        id: 2002,
+        clientId: 2,
+        clientNom: 'Béton Lavoie Inc',
+        date: '2024-01-19T10:00:00',
+        sujet: 'Planification coulage béton Centre Commercial Laurier',
+        participants: 'Marie Lavoie, Pierre Béton, François Carrier',
+        contenu: `COMPTE-RENDU DE RÉUNION
+
+Sujet: Planification coulage béton Centre Commercial Laurier
+Participants: Marie Lavoie, Pierre Béton, François Carrier
+
+Contexte:
+Coordination du coulage du nouveau stationnement souterrain de 450 m³ prévu pour début février.
+
+Points discutés:
+- Disponibilité des camions-toupies: 8 camions réservés pour le 5 février
+- Coordination avec l'équipe d'excavation (fin prévue le 2 février)
+- Spécifications techniques: béton 35 MPa avec fibres métalliques
+- Conditions météo: fenêtre favorable du 5 au 7 février
+- Équipe de finition: 12 personnes confirmées
+
+Décisions prises:
+- Date confirmée: 5 février 2024, début 6h00 du matin
+- Commande de béton passée: 450 m³ de béton 35 MPa
+- Location de 2 pompes à béton supplémentaires
+- Système de chauffage prévu si température sous -5°C
+
+Actions à suivre:
+- [Marie] Confirmer l'équipe de finition d'ici le 25 janvier
+- [Pierre] Vérifier les camions-toupies réservés le 1er février
+- [François] Coordonner l'inspection pré-coulage le 4 février
+- [Marie] Commander le système de chauffage de secours
+
+Prochaine étape: Inspection pré-coulage le 4 février 2024 à 15h00`,
+        priorite: 'Haute',
+        suiviRequis: true,
+        dateSuivi: '2024-02-04'
+      },
+      {
+        id: 2003,
+        clientId: 6,
+        clientNom: 'Électricité Côté',
+        date: '2024-01-21T14:30:00',
+        sujet: 'Installation électrique Usine Transformation Alimentaire',
+        participants: 'Lucie Côté, Marc Électricien, François Carrier',
+        contenu: `COMPTE-RENDU DE RÉUNION
+
+Sujet: Installation électrique Usine Transformation Alimentaire
+Participants: Lucie Côté, Marc Électricien, François Carrier
+
+Contexte:
+Point de situation sur l'avancement de l'installation électrique de l'usine de 5000 m². Le projet est à 40% d'avancement.
+
+Points discutés:
+- Installation des panneaux électriques principaux terminée
+- Câblage des zones de production en cours (60% complété)
+- Besoin d'ajouter 3 circuits dédiés pour nouveaux équipements
+- Délai pour la livraison des luminaires industriels LED
+- Coordination avec l'équipe de plomberie pour passages de câbles
+
+Décisions prises:
+- Ajout de 3 circuits triphasés 600V pour les nouveaux équipements
+- Coût additionnel: 18 500 $ approuvé par le client
+- Report de l'installation des luminaires de 2 semaines (livraison retardée)
+- Prioriser le câblage des zones critiques (réfrigération et congélation)
+
+Actions à suivre:
+- [Lucie] Commander les composants pour les 3 circuits additionnels d'ici le 24 janvier
+- [Marc] Terminer le câblage des zones de production pour le 8 février
+- [François] Suivi avec le fournisseur de luminaires pour accélérer la livraison
+- [Lucie] Planifier l'inspection électrique intermédiaire
+
+Prochaine étape: Inspection intermédiaire prévue le 15 février 2024`,
+        priorite: 'Moyenne',
+        suiviRequis: true,
+        dateSuivi: '2024-02-15'
+      }
+    ];
+
+    // Données mockées pour les projets identifiés via dictée vocale
+    const mockProjetsIdentifies = [
+      {
+        id: 3001,
+        date: '2024-01-25T11:20:00',
+        nomProjet: 'Agrandissement Parc-Tech Phase 2',
+        clientNom: 'Excavation Gagnon',
+        clientId: 3,
+        clientContact: 'Pierre Gagnon',
+        clientTelephone: '819-555-9012',
+        clientEmail: 'pgagnon@excavation-gagnon.ca',
+        typeProjet: 'Industriel',
+        valeurEstimee: 3200000,
+        ville: 'Sherbrooke',
+        adresse: '780 Rue King Est',
+        description: 'Projet d\'agrandissement du Complexe industriel Parc-Tech avec construction de 2 bâtiments additionnels de 4000 m² chacun. Les bâtiments seront destinés à de l\'entreposage réfrigéré et des bureaux administratifs.',
+        besoins: 'Structure métallique, isolation haute performance, système de réfrigération industriel, bureaux administratifs modernes avec salles de conférence',
+        budget: '3,2M $ approuvé en principe, financement à confirmer',
+        echeance: 'Début des travaux prévu automne 2024, livraison printemps 2026',
+        concurrence: '2 autres soumissionnaires: Construction Côté et Bâtiment Larose',
+        probabilite: '75',
+        statut: 'Qualification',
+        priorite: 'Haute'
+      },
+      {
+        id: 3002,
+        date: '2024-01-23T15:45:00',
+        nomProjet: 'Résidence pour aînés Le Havre',
+        clientNom: 'Groupe Investissement Santé Plus',
+        clientContact: 'Diane Fortin',
+        clientTelephone: '418-555-8888',
+        clientEmail: 'dfortin@santeplusgro upe.ca',
+        typeProjet: 'Résidentiel',
+        valeurEstimee: 8500000,
+        ville: 'Lévis',
+        adresse: 'À déterminer (terrain en négociation)',
+        description: 'Construction d\'une résidence pour aînés autonomes et semi-autonomes de 120 unités. Bâtiment de 6 étages avec espaces communs, salle à manger, salon, salle d\'activités et terrasse extérieure.',
+        besoins: 'Construction neuve, normes accessibilité, ascenseurs adaptés, cuisine commerciale, système de sécurité et d\'appel d\'urgence, stationnement souterrain',
+        budget: '8,5M $ confirmé, financement privé sécurisé',
+        echeance: 'Début construction mai 2024, ouverture prévue décembre 2025',
+        concurrence: 'Processus d\'appel d\'offres avec 4 soumissionnaires',
+        probabilite: '60',
+        statut: 'Soumission',
+        priorite: 'Haute'
+      },
+      {
+        id: 3003,
+        date: '2024-01-22T09:30:00',
+        nomProjet: 'Rénovation Garage Municipal',
+        clientNom: 'Ville de Trois-Rivières',
+        clientContact: 'Marc Tremblay - Directeur Travaux Publics',
+        clientTelephone: '819-555-3000',
+        clientEmail: 'mtremblay@v3r.ca',
+        typeProjet: 'Institutionnel',
+        valeurEstimee: 1250000,
+        ville: 'Trois-Rivières',
+        adresse: '1500 Rue des Travaux Publics',
+        description: 'Rénovation majeure du garage municipal incluant remplacement du système de chauffage, mise aux normes électriques, réfection de la toiture, installation de nouvelles portes de garage et amélioration de l\'éclairage.',
+        besoins: 'Toiture TPO, système de chauffage radiant au sol, panneaux électriques 600A, portes de garage industrielles isolées, éclairage LED haute efficacité',
+        budget: '1,25M $ budget municipal approuvé',
+        echeance: 'Appel d\'offres public en mars 2024, travaux entre mai et octobre 2024',
+        concurrence: 'Appel d\'offres public',
+        probabilite: '40',
+        statut: 'Prospection',
+        priorite: 'Moyenne'
+      },
+      {
+        id: 3004,
+        date: '2024-01-20T13:15:00',
+        nomProjet: 'Centre de distribution Amazon',
+        clientNom: 'Amazon Logistique Canada',
+        clientContact: 'Sarah Chen - Regional Manager',
+        clientTelephone: '514-555-2000',
+        clientEmail: 'schen@amazon.ca',
+        typeProjet: 'Industriel',
+        valeurEstimee: 25000000,
+        ville: 'Boucherville',
+        adresse: 'Parc industriel Boucherville (terrain identifié)',
+        description: 'Construction d\'un centre de distribution de 50 000 m² avec quais de chargement, système de tri automatisé, bureaux administratifs et stationnement pour 200 véhicules. Bâtiment hauteur 15 mètres avec structure d\'acier.',
+        besoins: 'Structure acier, dalle béton haute résistance, système électrique 2000A, système CVAC industriel, 40 quais de chargement, système sprinkleur complet',
+        budget: '25M $ confirmé, projet multi-phase',
+        echeance: 'Démarrage Q3 2024, livraison Q4 2025',
+        concurrence: 'Shortlist de 3 entrepreneurs généraux majeurs',
+        probabilite: '50',
+        statut: 'Qualification',
+        priorite: 'Très haute'
+      }
+    ];
+
     // Composant Modal
     const Modal = ({ isOpen, onClose, title, children }) => {
       if (!isOpen) return null;
@@ -269,7 +528,7 @@
       const [isWaitingPermission, setIsWaitingPermission] = React.useState(false);
       const [transcription, setTranscription] = React.useState('');
       const [showClientSelectModal, setShowClientSelectModal] = React.useState(false);
-      const [clientInteractions, setClientInteractions] = React.useState({});
+      const [clientInteractions, setClientInteractions] = React.useState(mockClientInteractions);
       const [showInteractionModal, setShowInteractionModal] = React.useState(false);
       const recognitionRef = React.useRef(null);
       const [interactionData, setInteractionData] = React.useState({
@@ -288,6 +547,14 @@
       const [voiceActionType, setVoiceActionType] = React.useState(''); // 'interaction', 'compte-rendu', 'projet'
       const [showCompteRenduModal, setShowCompteRenduModal] = React.useState(false);
       const [showProjetIdentificationModal, setShowProjetIdentificationModal] = React.useState(false);
+
+      // États pour les comptes-rendus et projets identifiés (avec données mockées)
+      const [comptesRendus, setComptesRendus] = React.useState(mockComptesRendus);
+      const [projetsIdentifies, setProjetsIdentifies] = React.useState(mockProjetsIdentifies);
+      const [showCompteRenduDetailModal, setShowCompteRenduDetailModal] = React.useState(false);
+      const [selectedCompteRendu, setSelectedCompteRendu] = React.useState(null);
+      const [showProjetIdentifieDetailModal, setShowProjetIdentifieDetailModal] = React.useState(false);
+      const [selectedProjetIdentifie, setSelectedProjetIdentifie] = React.useState(null);
       const [compteRenduData, setCompteRenduData] = React.useState({
         clientId: null,
         sujet: '',
