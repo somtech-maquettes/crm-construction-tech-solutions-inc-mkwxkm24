@@ -432,6 +432,520 @@ Prochaine étape: Inspection intermédiaire prévue le 15 février 2024`,
       }
     ];
 
+    // Données mockées pour le diagramme de Gantt
+    const mockGanttProjects = [
+      {
+        id: 1,
+        nom: "Tour résidentielle Les Jardins",
+        client: "Construction Tremblay & Fils",
+        type: "Résidentiel",
+        statut: "En cours",
+        dateDebut: "2024-02-01",
+        dateFin: "2024-08-31",
+        valeur: 2450000,
+        responsableProjet: "Jean Tremblay",
+        taches: [
+          {
+            id: "t1-1",
+            nom: "Excavation et fondations",
+            dateDebut: "2024-02-01",
+            dateFin: "2024-03-15",
+            avancement: 100,
+            statut: "Terminé",
+            responsable: "Équipe excavation",
+            equipe: ["Pierre Gagnon", "Marc Tremblay", "Julie Roy"],
+            dependances: [],
+            priorite: "Haute",
+            budget: 450000,
+            depenseActuelle: 445000,
+            notes: "Terrain rocheux, dynamitage nécessaire",
+            couleur: "#10b981"
+          },
+          {
+            id: "t1-2",
+            nom: "Structure béton (étages 1-6)",
+            dateDebut: "2024-03-16",
+            dateFin: "2024-05-31",
+            avancement: 75,
+            statut: "En cours",
+            responsable: "Marie Lavoie",
+            equipe: ["Marie Lavoie", "François Dubois", "Sophie Martin", "André Côté"],
+            dependances: ["t1-1"],
+            priorite: "Haute",
+            budget: 850000,
+            depenseActuelle: 620000,
+            notes: "Coulage prévu chaque semaine, météo critique",
+            couleur: "#3b82f6"
+          },
+          {
+            id: "t1-3",
+            nom: "Structure béton (étages 7-12)",
+            dateDebut: "2024-06-01",
+            dateFin: "2024-07-31",
+            avancement: 10,
+            statut: "En cours",
+            responsable: "Marie Lavoie",
+            equipe: ["Marie Lavoie", "François Dubois", "André Côté"],
+            dependances: ["t1-2"],
+            priorite: "Haute",
+            budget: 800000,
+            depenseActuelle: 80000,
+            notes: "Début imminent, équipe réduite en juin",
+            couleur: "#3b82f6"
+          },
+          {
+            id: "t1-4",
+            nom: "Installation électrique globale",
+            dateDebut: "2024-06-15",
+            dateFin: "2024-08-15",
+            avancement: 5,
+            statut: "Planifié",
+            responsable: "Lucie Côté",
+            equipe: ["Lucie Côté", "Marc Électricien"],
+            dependances: ["t1-2"],
+            priorite: "Moyenne",
+            budget: 320000,
+            depenseActuelle: 15000,
+            notes: "Matériel commandé, livraison mi-juin",
+            couleur: "#f59e0b"
+          },
+          {
+            id: "t1-5",
+            nom: "Finitions et livraison",
+            dateDebut: "2024-08-01",
+            dateFin: "2024-08-31",
+            avancement: 0,
+            statut: "Planifié",
+            responsable: "Nathalie Dubois",
+            equipe: ["Nathalie Dubois", "Équipe peinture", "Équipe finitions"],
+            dependances: ["t1-3", "t1-4"],
+            priorite: "Moyenne",
+            budget: 380000,
+            depenseActuelle: 0,
+            notes: "Peinture, revêtements de sol, nettoyage final",
+            couleur: "#f59e0b"
+          }
+        ]
+      },
+      {
+        id: 2,
+        nom: "Rénovation Centre Commercial Laurier",
+        client: "Béton Lavoie Inc",
+        type: "Commercial",
+        statut: "En cours",
+        dateDebut: "2024-01-15",
+        dateFin: "2024-12-15",
+        valeur: 3200000,
+        responsableProjet: "Marie Lavoie",
+        taches: [
+          {
+            id: "t2-1",
+            nom: "Démolition zones commerciales",
+            dateDebut: "2024-01-15",
+            dateFin: "2024-02-28",
+            avancement: 100,
+            statut: "Terminé",
+            responsable: "Robert Démolition",
+            equipe: ["Robert Martin", "Équipe démolition"],
+            dependances: [],
+            priorite: "Haute",
+            budget: 280000,
+            depenseActuelle: 275000,
+            notes: "Démolition terminée, recyclage matériaux",
+            couleur: "#10b981"
+          },
+          {
+            id: "t2-2",
+            nom: "Réfection structure principale",
+            dateDebut: "2024-03-01",
+            dateFin: "2024-06-30",
+            avancement: 60,
+            statut: "En cours",
+            responsable: "Paul Charpentier",
+            equipe: ["Paul Charpentier", "Équipe structure"],
+            dependances: ["t2-1"],
+            priorite: "Haute",
+            budget: 980000,
+            depenseActuelle: 588000,
+            notes: "Renforcement poutres principales",
+            couleur: "#3b82f6"
+          },
+          {
+            id: "t2-3",
+            nom: "Installation CVAC moderne",
+            dateDebut: "2024-05-15",
+            dateFin: "2024-08-31",
+            avancement: 25,
+            statut: "En cours",
+            responsable: "CVAC Experts Inc",
+            equipe: ["Michel Ventilation", "Équipe CVAC"],
+            dependances: ["t2-1"],
+            priorite: "Moyenne",
+            budget: 650000,
+            depenseActuelle: 162500,
+            notes: "Système géothermique innovant",
+            couleur: "#3b82f6"
+          },
+          {
+            id: "t2-4",
+            nom: "Électricité et éclairage DEL",
+            dateDebut: "2024-07-01",
+            dateFin: "2024-10-15",
+            avancement: 0,
+            statut: "Planifié",
+            responsable: "Électricité Moderne",
+            equipe: ["Jacques Électrique", "Équipe électrique"],
+            dependances: ["t2-2"],
+            priorite: "Moyenne",
+            budget: 520000,
+            depenseActuelle: 0,
+            notes: "Éclairage DEL intelligent",
+            couleur: "#f59e0b"
+          },
+          {
+            id: "t2-5",
+            nom: "Aménagement intérieur boutiques",
+            dateDebut: "2024-09-01",
+            dateFin: "2024-11-30",
+            avancement: 0,
+            statut: "Planifié",
+            responsable: "Design Commercial Plus",
+            equipe: ["Sophie Designer", "Équipe aménagement"],
+            dependances: ["t2-3", "t2-4"],
+            priorite: "Moyenne",
+            budget: 450000,
+            depenseActuelle: 0,
+            notes: "Design moderne et fonctionnel",
+            couleur: "#f59e0b"
+          },
+          {
+            id: "t2-6",
+            nom: "Finitions et ouverture",
+            dateDebut: "2024-12-01",
+            dateFin: "2024-12-15",
+            avancement: 0,
+            statut: "Planifié",
+            responsable: "Marie Lavoie",
+            equipe: ["Toutes les équipes"],
+            dependances: ["t2-5"],
+            priorite: "Haute",
+            budget: 320000,
+            depenseActuelle: 0,
+            notes: "Inspection finale et ouverture",
+            couleur: "#f59e0b"
+          }
+        ]
+      },
+      {
+        id: 3,
+        nom: "Complexe industriel Parc-Tech",
+        client: "Excavation Gagnon",
+        type: "Industriel",
+        statut: "Planification",
+        dateDebut: "2024-03-01",
+        dateFin: "2024-11-30",
+        valeur: 1800000,
+        responsableProjet: "Pierre Gagnon",
+        taches: [
+          {
+            id: "t3-1",
+            nom: "Préparation terrain et excavation",
+            dateDebut: "2024-03-01",
+            dateFin: "2024-04-15",
+            avancement: 30,
+            statut: "En cours",
+            responsable: "Pierre Gagnon",
+            equipe: ["Pierre Gagnon", "Équipe excavation"],
+            dependances: [],
+            priorite: "Haute",
+            budget: 380000,
+            depenseActuelle: 114000,
+            notes: "Drainage et nivellement",
+            couleur: "#3b82f6"
+          },
+          {
+            id: "t3-2",
+            nom: "Fondations industrielles",
+            dateDebut: "2024-04-16",
+            dateFin: "2024-06-30",
+            avancement: 0,
+            statut: "Planifié",
+            responsable: "Béton Industriel Inc",
+            equipe: ["Marc Bétonnier", "Équipe béton"],
+            dependances: ["t3-1"],
+            priorite: "Haute",
+            budget: 620000,
+            depenseActuelle: 0,
+            notes: "Fondations renforcées charge lourde",
+            couleur: "#f59e0b"
+          },
+          {
+            id: "t3-3",
+            nom: "Structure métallique",
+            dateDebut: "2024-07-01",
+            dateFin: "2024-09-30",
+            avancement: 0,
+            statut: "Planifié",
+            responsable: "Acier Structure Plus",
+            equipe: ["Robert Soudeur", "Équipe structure"],
+            dependances: ["t3-2"],
+            priorite: "Haute",
+            budget: 550000,
+            depenseActuelle: 0,
+            notes: "Charpente métallique 8000 m²",
+            couleur: "#f59e0b"
+          },
+          {
+            id: "t3-4",
+            nom: "Toiture et isolation",
+            dateDebut: "2024-10-01",
+            dateFin: "2024-11-30",
+            avancement: 0,
+            statut: "Planifié",
+            responsable: "Toiture Pro",
+            equipe: ["Luc Couvreur", "Équipe toiture"],
+            dependances: ["t3-3"],
+            priorite: "Moyenne",
+            budget: 250000,
+            depenseActuelle: 0,
+            notes: "Isolation haute performance",
+            couleur: "#f59e0b"
+          }
+        ]
+      },
+      {
+        id: 4,
+        nom: "École primaire Des Érables",
+        client: "Toiture Bouchard",
+        type: "Institutionnel",
+        statut: "Planification",
+        dateDebut: "2024-05-01",
+        dateFin: "2024-10-31",
+        valeur: 980000,
+        responsableProjet: "Sophie Bouchard",
+        taches: [
+          {
+            id: "t4-1",
+            nom: "Retrait ancienne toiture",
+            dateDebut: "2024-05-01",
+            dateFin: "2024-05-31",
+            avancement: 0,
+            statut: "Planifié",
+            responsable: "Sophie Bouchard",
+            equipe: ["Sophie Bouchard", "Équipe démolition"],
+            dependances: [],
+            priorite: "Haute",
+            budget: 180000,
+            depenseActuelle: 0,
+            notes: "Travaux pendant congé scolaire",
+            couleur: "#f59e0b"
+          },
+          {
+            id: "t4-2",
+            nom: "Installation nouvelle toiture",
+            dateDebut: "2024-06-01",
+            dateFin: "2024-08-31",
+            avancement: 0,
+            statut: "Planifié",
+            responsable: "Équipe toiture principale",
+            equipe: ["Martin Couvreur", "Équipe toiture"],
+            dependances: ["t4-1"],
+            priorite: "Haute",
+            budget: 550000,
+            depenseActuelle: 0,
+            notes: "Membrane TPO blanc réflectif",
+            couleur: "#f59e0b"
+          },
+          {
+            id: "t4-3",
+            nom: "Isolation et finitions",
+            dateDebut: "2024-09-01",
+            dateFin: "2024-10-31",
+            avancement: 0,
+            statut: "Planifié",
+            responsable: "Isolation Expert",
+            equipe: ["Paul Isolateur", "Équipe isolation"],
+            dependances: ["t4-2"],
+            priorite: "Moyenne",
+            budget: 250000,
+            depenseActuelle: 0,
+            notes: "R-40 requis normes scolaires",
+            couleur: "#f59e0b"
+          }
+        ]
+      },
+      {
+        id: 5,
+        nom: "Condominiums Bord-du-Lac",
+        client: "Construction Tremblay & Fils",
+        type: "Résidentiel",
+        statut: "En cours",
+        dateDebut: "2023-09-01",
+        dateFin: "2024-06-30",
+        valeur: 4500000,
+        responsableProjet: "Jean Tremblay",
+        taches: [
+          {
+            id: "t5-1",
+            nom: "Infrastructure et fondations",
+            dateDebut: "2023-09-01",
+            dateFin: "2023-11-30",
+            avancement: 100,
+            statut: "Terminé",
+            responsable: "Pierre Fondations",
+            equipe: ["Pierre Martin", "Équipe fondations"],
+            dependances: [],
+            priorite: "Haute",
+            budget: 820000,
+            depenseActuelle: 815000,
+            notes: "Pilotis vue fleuve complétés",
+            couleur: "#10b981"
+          },
+          {
+            id: "t5-2",
+            nom: "Structure béton 8 étages",
+            dateDebut: "2023-12-01",
+            dateFin: "2024-03-31",
+            avancement: 100,
+            statut: "Terminé",
+            responsable: "Béton Excellence",
+            equipe: ["Marc Béton", "Grande équipe"],
+            dependances: ["t5-1"],
+            priorite: "Haute",
+            budget: 1850000,
+            depenseActuelle: 1830000,
+            notes: "Structure complète terminée",
+            couleur: "#10b981"
+          },
+          {
+            id: "t5-3",
+            nom: "Enveloppe et fenestration",
+            dateDebut: "2024-02-15",
+            dateFin: "2024-05-15",
+            avancement: 85,
+            statut: "En cours",
+            responsable: "Vitrerie Moderne",
+            equipe: ["Jacques Vitrier", "Équipe enveloppe"],
+            dependances: ["t5-2"],
+            priorite: "Haute",
+            budget: 980000,
+            depenseActuelle: 833000,
+            notes: "Murs rideaux panoramiques",
+            couleur: "#3b82f6"
+          },
+          {
+            id: "t5-4",
+            nom: "Mécanique et électrique",
+            dateDebut: "2024-03-01",
+            dateFin: "2024-05-31",
+            avancement: 70,
+            statut: "En cours",
+            responsable: "MEP Solutions",
+            equipe: ["Paul MEP", "Équipe mécanique"],
+            dependances: ["t5-2"],
+            priorite: "Haute",
+            budget: 620000,
+            depenseActuelle: 434000,
+            notes: "Systèmes VRF haute efficacité",
+            couleur: "#3b82f6"
+          },
+          {
+            id: "t5-5",
+            nom: "Finitions luxe et livraison",
+            dateDebut: "2024-05-01",
+            dateFin: "2024-06-30",
+            avancement: 20,
+            statut: "En cours",
+            responsable: "Finitions Prestige",
+            equipe: ["Sophie Finitions", "Équipe luxe"],
+            dependances: ["t5-3", "t5-4"],
+            priorite: "Haute",
+            budget: 230000,
+            depenseActuelle: 46000,
+            notes: "Matériaux haut de gamme",
+            couleur: "#3b82f6"
+          }
+        ]
+      },
+      {
+        id: 6,
+        nom: "Usine Transformation Alimentaire",
+        client: "Électricité Côté",
+        type: "Industriel",
+        statut: "En cours",
+        dateDebut: "2024-02-15",
+        dateFin: "2024-09-30",
+        valeur: 1500000,
+        responsableProjet: "Lucie Côté",
+        taches: [
+          {
+            id: "t6-1",
+            nom: "Installation électrique 600V",
+            dateDebut: "2024-02-15",
+            dateFin: "2024-04-30",
+            avancement: 90,
+            statut: "En cours",
+            responsable: "Lucie Côté",
+            equipe: ["Lucie Côté", "Maîtres électriciens"],
+            dependances: [],
+            priorite: "Haute",
+            budget: 480000,
+            depenseActuelle: 432000,
+            notes: "Alimentation équipements lourds",
+            couleur: "#3b82f6"
+          },
+          {
+            id: "t6-2",
+            nom: "Panneaux de contrôle automatisés",
+            dateDebut: "2024-05-01",
+            dateFin: "2024-06-30",
+            avancement: 15,
+            statut: "En cours",
+            responsable: "Automation Plus",
+            equipe: ["Marc Automation", "Programmeurs"],
+            dependances: ["t6-1"],
+            priorite: "Haute",
+            budget: 380000,
+            depenseActuelle: 57000,
+            notes: "PLC et SCADA intégrés",
+            couleur: "#3b82f6"
+          },
+          {
+            id: "t6-3",
+            nom: "Éclairage DEL zones production",
+            dateDebut: "2024-07-01",
+            dateFin: "2024-08-15",
+            avancement: 0,
+            statut: "Planifié",
+            responsable: "DEL Industriel",
+            equipe: ["Pierre Éclairage", "Équipe DEL"],
+            dependances: ["t6-1"],
+            priorite: "Moyenne",
+            budget: 320000,
+            depenseActuelle: 0,
+            notes: "Normes HACCP alimentaire",
+            couleur: "#f59e0b"
+          },
+          {
+            id: "t6-4",
+            nom: "Tests et mise en service",
+            dateDebut: "2024-08-16",
+            dateFin: "2024-09-30",
+            avancement: 0,
+            statut: "Planifié",
+            responsable: "Lucie Côté",
+            equipe: ["Toute l'équipe", "Inspecteurs"],
+            dependances: ["t6-2", "t6-3"],
+            priorite: "Haute",
+            budget: 320000,
+            depenseActuelle: 0,
+            notes: "Certification finale CNESST",
+            couleur: "#f59e0b"
+          }
+        ]
+      }
+    ];
+
     // Composant Modal
     const Modal = ({ isOpen, onClose, title, children }) => {
       if (!isOpen) return null;
@@ -490,6 +1004,361 @@ Prochaine étape: Inspection intermédiaire prévue le 15 février 2024`,
       }, [clients]);
 
       return <div ref={mapRef} className="w-full h-96 rounded-lg border border-slate-200 z-0" />;
+    };
+
+    // Composant GanttTimeline - En-tête avec les mois et semaines
+    const GanttTimeline = ({ startDate, endDate, scale }) => {
+      const months = [];
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+
+      // Générer les mois entre les deux dates
+      const current = new Date(start);
+      while (current <= end) {
+        months.push({
+          name: current.toLocaleDateString('fr-CA', { month: 'long', year: 'numeric' }),
+          start: new Date(current),
+          days: new Date(current.getFullYear(), current.getMonth() + 1, 0).getDate()
+        });
+        current.setMonth(current.getMonth() + 1);
+      }
+
+      return (
+        <div className="sticky top-0 bg-white border-b border-slate-300 z-10">
+          <div className="flex">
+            <div className="w-64 flex-shrink-0 border-r border-slate-300 p-3 bg-slate-50">
+              <span className="font-semibold text-slate-700">Projet / Tâche</span>
+            </div>
+            <div className="flex-1 overflow-x-auto">
+              <div className="flex border-b border-slate-200">
+                {months.map((month, idx) => (
+                  <div key={idx} className="border-r border-slate-200 flex-shrink-0"
+                       style={{ width: `${month.days * 3}px` }}>
+                    <div className="p-2 text-center text-sm font-medium text-slate-700 capitalize">
+                      {month.name}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {scale === 'semaine' && (
+                <div className="flex">
+                  {months.map((month, idx) => {
+                    const weeks = Math.ceil(month.days / 7);
+                    return (
+                      <div key={idx} className="flex border-r border-slate-200">
+                        {[...Array(weeks)].map((_, weekIdx) => (
+                          <div key={weekIdx} className="border-r border-slate-100 flex-shrink-0 text-xs text-center p-1 text-slate-500"
+                               style={{ width: '21px' }}>
+                            S{weekIdx + 1}
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // Composant GanttRow - Ligne individuelle pour une tâche
+    const GanttRow = ({ task, project, timelineStart, timelineEnd, onTaskClick, level = 0 }) => {
+      const calculatePosition = () => {
+        const start = new Date(timelineStart);
+        const end = new Date(timelineEnd);
+        const taskStart = new Date(task.dateDebut);
+        const taskEnd = new Date(task.dateFin);
+        const totalDays = (end - start) / (1000 * 60 * 60 * 24);
+        const startOffset = (taskStart - start) / (1000 * 60 * 60 * 24);
+        const duration = (taskEnd - taskStart) / (1000 * 60 * 60 * 24) + 1;
+
+        return {
+          left: `${(startOffset / totalDays) * 100}%`,
+          width: `${(duration / totalDays) * 100}%`
+        };
+      };
+
+      const position = calculatePosition();
+      const today = new Date();
+      const isOverdue = new Date(task.dateFin) < today && task.avancement < 100;
+
+      return (
+        <div className="flex border-b border-slate-200 hover:bg-slate-50 group">
+          <div className="w-64 flex-shrink-0 border-r border-slate-300 p-3">
+            <div className={`flex items-center gap-2 ${level > 0 ? 'ml-6' : ''}`}>
+              {level === 0 && <Icon name="folder" className="w-4 h-4 text-slate-400" />}
+              <span className={`${level === 0 ? 'font-semibold' : 'text-sm'} text-slate-800 truncate`}>
+                {task.nom}
+              </span>
+            </div>
+          </div>
+          <div className="flex-1 relative h-16" onClick={() => onTaskClick(task, project)}>
+            <div
+              className="absolute top-3 h-10 rounded cursor-pointer transition-all hover:shadow-lg"
+              style={{
+                left: position.left,
+                width: position.width,
+                backgroundColor: task.couleur || '#3b82f6'
+              }}
+            >
+              <div
+                className="h-full bg-white bg-opacity-30 rounded-l"
+                style={{ width: `${task.avancement}%` }}
+              />
+              <span className="absolute inset-0 flex items-center px-2 text-xs text-white font-medium">
+                {task.avancement}%
+              </span>
+              {isOverdue && (
+                <span className="absolute -right-2 top-0 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs">!</span>
+                </span>
+              )}
+            </div>
+
+            {/* Ligne de dépendance */}
+            {task.dependances && task.dependances.length > 0 && (
+              <div className="absolute top-8 left-0 h-px bg-slate-400"
+                   style={{ width: position.left, opacity: 0.5 }} />
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    // Composant GanttControls - Contrôles et filtres
+    const GanttControls = ({ filter, timeScale, onFilterChange, onScaleChange, onExport }) => {
+      const handleExportPDF = () => {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('landscape');
+
+        doc.setFontSize(18);
+        doc.text('Diagramme de Gantt - Projets', 14, 20);
+
+        doc.setFontSize(10);
+        doc.text(`Généré le: ${new Date().toLocaleDateString('fr-CA')}`, 14, 30);
+
+        // Ajouter le contenu (simplifié pour cet exemple)
+        doc.setFontSize(12);
+        let y = 50;
+        ganttProjects.forEach(project => {
+          doc.text(`${project.nom} - ${project.statut}`, 14, y);
+          y += 10;
+          project.taches.forEach(task => {
+            doc.setFontSize(10);
+            doc.text(`  - ${task.nom} (${task.avancement}%)`, 20, y);
+            y += 7;
+          });
+          doc.setFontSize(12);
+          y += 5;
+        });
+
+        doc.save('gantt-projets.pdf');
+      };
+
+      return (
+        <div className="bg-white border-b border-slate-200 p-4">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-slate-700">Statut:</label>
+                <select
+                  value={filter.statut}
+                  onChange={(e) => onFilterChange({ ...filter, statut: e.target.value })}
+                  className="text-sm border border-slate-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  <option value="tous">Tous</option>
+                  <option value="En cours">En cours</option>
+                  <option value="Planifié">Planifié</option>
+                  <option value="Terminé">Terminé</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-slate-700">Type:</label>
+                <select
+                  value={filter.type}
+                  onChange={(e) => onFilterChange({ ...filter, type: e.target.value })}
+                  className="text-sm border border-slate-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  <option value="tous">Tous</option>
+                  <option value="Résidentiel">Résidentiel</option>
+                  <option value="Commercial">Commercial</option>
+                  <option value="Industriel">Industriel</option>
+                  <option value="Institutionnel">Institutionnel</option>
+                </select>
+              </div>
+
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={filter.masquerTerminees}
+                  onChange={(e) => onFilterChange({ ...filter, masquerTerminees: e.target.checked })}
+                  className="rounded text-indigo-600 focus:ring-indigo-500"
+                />
+                <span className="text-sm text-slate-700">Masquer terminées</span>
+              </label>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-slate-700">Vue:</label>
+                <select
+                  value={timeScale}
+                  onChange={(e) => onScaleChange(e.target.value)}
+                  className="text-sm border border-slate-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  <option value="jour">Jour</option>
+                  <option value="semaine">Semaine</option>
+                  <option value="mois">Mois</option>
+                </select>
+              </div>
+
+              <button
+                onClick={handleExportPDF}
+                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium"
+              >
+                <Icon name="download" className="w-4 h-4" />
+                Exporter PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // Composant TaskDetailModal - Modal pour les détails de tâche
+    const TaskDetailModal = ({ task, project, isOpen, onClose }) => {
+      if (!isOpen || !task) return null;
+
+      return (
+        <Modal isOpen={isOpen} onClose={onClose} title={`Détails: ${task.nom}`}>
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-sm font-semibold text-slate-700 mb-2">Informations générales</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <span className="text-sm text-slate-600">Projet:</span>
+                  <p className="font-medium">{project?.nom}</p>
+                </div>
+                <div>
+                  <span className="text-sm text-slate-600">Statut:</span>
+                  <p className="font-medium">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      task.statut === 'Terminé' ? 'bg-green-100 text-green-800' :
+                      task.statut === 'En cours' ? 'bg-blue-100 text-blue-800' :
+                      'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {task.statut}
+                    </span>
+                  </p>
+                </div>
+                <div>
+                  <span className="text-sm text-slate-600">Dates:</span>
+                  <p className="font-medium">{task.dateDebut} → {task.dateFin}</p>
+                </div>
+                <div>
+                  <span className="text-sm text-slate-600">Avancement:</span>
+                  <div className="mt-1">
+                    <div className="w-full bg-slate-200 rounded-full h-2">
+                      <div className="bg-indigo-600 h-2 rounded-full" style={{ width: `${task.avancement}%` }} />
+                    </div>
+                    <p className="text-sm font-medium mt-1">{task.avancement}%</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-semibold text-slate-700 mb-2">Équipe et responsabilités</h3>
+              <div className="space-y-2">
+                <div>
+                  <span className="text-sm text-slate-600">Responsable:</span>
+                  <p className="font-medium">{task.responsable}</p>
+                </div>
+                <div>
+                  <span className="text-sm text-slate-600">Équipe:</span>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {task.equipe?.map((membre, idx) => (
+                      <span key={idx} className="text-sm bg-slate-100 px-2 py-1 rounded">
+                        {membre}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-semibold text-slate-700 mb-2">Budget</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <span className="text-sm text-slate-600">Budget alloué:</span>
+                  <p className="font-medium">{task.budget?.toLocaleString('fr-CA')} $ CAD</p>
+                </div>
+                <div>
+                  <span className="text-sm text-slate-600">Dépensé:</span>
+                  <p className="font-medium">{task.depenseActuelle?.toLocaleString('fr-CA')} $ CAD</p>
+                </div>
+              </div>
+            </div>
+
+            {task.dependances && task.dependances.length > 0 && (
+              <div>
+                <h3 className="text-sm font-semibold text-slate-700 mb-2">Dépendances</h3>
+                <p className="text-sm text-slate-600">
+                  Cette tâche dépend de: {task.dependances.join(', ')}
+                </p>
+              </div>
+            )}
+
+            {task.notes && (
+              <div>
+                <h3 className="text-sm font-semibold text-slate-700 mb-2">Notes</h3>
+                <p className="text-sm text-slate-600">{task.notes}</p>
+              </div>
+            )}
+          </div>
+        </Modal>
+      );
+    };
+
+    // Composant GanttLegend - Légende des couleurs et symboles
+    const GanttLegend = () => {
+      return (
+        <div className="bg-slate-50 border-t border-slate-200 p-4">
+          <div className="flex items-center gap-8 text-sm">
+            <span className="font-medium text-slate-700">Légende:</span>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-green-500" />
+              <span className="text-slate-600">Terminé</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-blue-500" />
+              <span className="text-slate-600">En cours</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-yellow-500" />
+              <span className="text-slate-600">Planifié</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-red-500" />
+              <span className="text-slate-600">En retard</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-32 h-px bg-slate-400" />
+              <span className="text-slate-600">Dépendance</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-blue-500 rounded relative">
+                <div className="absolute inset-0 bg-white bg-opacity-30 rounded-l" style={{ width: '60%' }} />
+              </div>
+              <span className="text-slate-600">Progression</span>
+            </div>
+          </div>
+        </div>
+      );
     };
 
     // Application principale
@@ -587,6 +1456,21 @@ Prochaine étape: Inspection intermédiaire prévue le 15 février 2024`,
         echeance: '',
         concurrence: '',
         probabilite: '50'
+      });
+
+      // États pour le diagramme de Gantt
+      const [ganttProjects, setGanttProjects] = React.useState(mockGanttProjects);
+      const [ganttFilter, setGanttFilter] = React.useState({
+        statut: 'tous',
+        type: 'tous',
+        masquerTerminees: false
+      });
+      const [ganttTimeScale, setGanttTimeScale] = React.useState('semaine');
+      const [selectedTask, setSelectedTask] = React.useState(null);
+      const [showTaskModal, setShowTaskModal] = React.useState(false);
+      const [ganttDateRange, setGanttDateRange] = React.useState({
+        start: '2024-01-01',
+        end: '2024-12-31'
       });
 
       // États du formulaire
