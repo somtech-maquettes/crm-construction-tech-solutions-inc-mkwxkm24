@@ -281,6 +281,23 @@
       });
       const [editingInteraction, setEditingInteraction] = React.useState(null);
 
+      // États pour le menu contextuel de dictée vocale
+      const [showVoiceMenu, setShowVoiceMenu] = React.useState(false);
+      const [voiceActionType, setVoiceActionType] = React.useState(''); // 'interaction', 'compte-rendu', 'projet'
+      const [showCompteRenduModal, setShowCompteRenduModal] = React.useState(false);
+      const [showProjetIdentificationModal, setShowProjetIdentificationModal] = React.useState(false);
+      const [compteRenduData, setCompteRenduData] = React.useState({
+        clientId: null,
+        sujet: '',
+        participants: '',
+        contexte: '',
+        pointsDiscutes: '',
+        decisionsPreses: '',
+        actionsASuivre: '',
+        prochaineSuivi: '',
+        priorite: 'Moyenne'
+      });
+
       // États pour l'identification de projets
       const [projetIdentificationData, setProjetIdentificationData] = React.useState({
         nomProjet: '',
@@ -388,11 +405,21 @@
       };
 
       // Gérer la dictée vocale
-      const handleStartRecording = () => {
+      const handleStartRecording = (actionType = '') => {
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
           alert('La reconnaissance vocale n\'est pas supportée par votre navigateur. Veuillez utiliser Chrome ou Edge.');
           return;
         }
+
+        // Si pas de type d'action spécifié, ouvrir le menu
+        if (!actionType) {
+          setShowVoiceMenu(true);
+          return;
+        }
+
+        // Fermer le menu et définir le type d'action
+        setShowVoiceMenu(false);
+        setVoiceActionType(actionType);
 
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         const recognition = new SpeechRecognition();
@@ -422,7 +449,14 @@
         recognition.onend = () => {
           setIsRecording(false);
           if (transcription.trim()) {
-            setShowClientSelectModal(true);
+            // Rediriger vers le modal approprié selon le type d'action
+            if (actionType === 'interaction') {
+              setShowClientSelectModal(true);
+            } else if (actionType === 'compte-rendu') {
+              setShowClientSelectModal(true); // Sélectionner d'abord le client
+            } else if (actionType === 'projet') {
+              setShowProjetIdentificationModal(true);
+            }
           }
         };
 
@@ -438,14 +472,26 @@
       };
 
       const handleSelectClientForInteraction = (clientId) => {
-        setInteractionData({
-          ...interactionData,
-          clientId: clientId,
-          contenu: transcription.trim(),
-          type: 'Note vocale'
-        });
         setShowClientSelectModal(false);
-        setShowInteractionModal(true);
+
+        if (voiceActionType === 'interaction') {
+          // Interaction simple
+          setInteractionData({
+            ...interactionData,
+            clientId: clientId,
+            contenu: transcription.trim(),
+            type: 'Note vocale'
+          });
+          setShowInteractionModal(true);
+        } else if (voiceActionType === 'compte-rendu') {
+          // Compte-rendu détaillé
+          setCompteRenduData({
+            ...compteRenduData,
+            clientId: clientId,
+            pointsDiscutes: transcription.trim()
+          });
+          setShowCompteRenduModal(true);
+        }
       };
 
       const handleSaveInteraction = (e) => {
@@ -537,6 +583,179 @@
         });
         setEditingInteraction(null);
         setShowInteractionModal(true);
+      };
+
+      // Sauvegarder un compte-rendu détaillé
+      const handleSaveCompteRendu = (e) => {
+        e.preventDefault();
+
+        if (!compteRenduData.sujet.trim()) {
+          alert('Veuillez saisir un sujet pour le compte-rendu');
+          return;
+        }
+
+        const compteRendu = `COMPTE-RENDU DE RÉUNION
+
+Sujet: ${compteRenduData.sujet}
+Participants: ${compteRenduData.participants || 'N/A'}
+
+Contexte:
+${compteRenduData.contexte || 'N/A'}
+
+Points discutés:
+${compteRenduData.pointsDiscutes || 'N/A'}
+
+Décisions prises:
+${compteRenduData.decisionsPreses || 'N/A'}
+
+Actions à suivre:
+${compteRenduData.actionsASuivre || 'N/A'}
+
+Prochaine étape: ${compteRenduData.prochaineSuivi || 'À déterminer'}`;
+
+        const newInteraction = {
+          id: Date.now(),
+          date: new Date().toISOString(),
+          type: 'Compte-rendu',
+          categorie: 'Réunion',
+          contenu: compteRendu,
+          suiviRequis: compteRenduData.prochaineSuivi ? true : false,
+          dateSuivi: compteRenduData.prochaineSuivi || '',
+          priorite: compteRenduData.priorite
+        };
+
+        setClientInteractions(prev => ({
+          ...prev,
+          [compteRenduData.clientId]: [...(prev[compteRenduData.clientId] || []), newInteraction]
+        }));
+
+        setClients(clients.map(c =>
+          c.id === compteRenduData.clientId
+            ? { ...c, derniereInteraction: new Date().toISOString().split('T')[0] }
+            : c
+        ));
+
+        setShowCompteRenduModal(false);
+        setTranscription('');
+        setCompteRenduData({
+          clientId: null,
+          sujet: '',
+          participants: '',
+          contexte: '',
+          pointsDiscutes: '',
+          decisionsPreses: '',
+          actionsASuivre: '',
+          prochaineSuivi: '',
+          priorite: 'Moyenne'
+        });
+        setVoiceActionType('');
+      };
+
+      // Sauvegarder une identification de projet
+      const handleSaveProjetIdentification = (e) => {
+        e.preventDefault();
+
+        if (!projetIdentificationData.nomProjet.trim()) {
+          alert('Veuillez saisir un nom pour le projet');
+          return;
+        }
+
+        const projetInfo = `IDENTIFICATION DE PROJET
+
+Projet: ${projetIdentificationData.nomProjet}
+Client: ${projetIdentificationData.clientNom}
+Contact: ${projetIdentificationData.clientContact}
+Téléphone: ${projetIdentificationData.clientTelephone}
+Email: ${projetIdentificationData.clientEmail}
+
+Type de projet: ${projetIdentificationData.typeProjet}
+Valeur estimée: ${projetIdentificationData.valeurEstimee ? projetIdentificationData.valeurEstimee + ' $' : 'À déterminer'}
+Date de début prévue: ${projetIdentificationData.dateDebut || 'À déterminer'}
+Ville: ${projetIdentificationData.ville}
+Adresse: ${projetIdentificationData.adresse || 'À déterminer'}
+
+Description:
+${projetIdentificationData.description || transcription || 'N/A'}
+
+Besoins identifiés:
+${projetIdentificationData.besoins || 'N/A'}
+
+Budget du client: ${projetIdentificationData.budget || 'N/A'}
+Échéance: ${projetIdentificationData.echeance || 'N/A'}
+Concurrence: ${projetIdentificationData.concurrence || 'N/A'}
+Probabilité de concrétisation: ${projetIdentificationData.probabilite}%`;
+
+        // Créer un nouveau projet dans la liste des projets
+        const newProjet = {
+          id: Date.now(),
+          nom: projetIdentificationData.nomProjet,
+          client: projetIdentificationData.clientNom,
+          clientId: null,
+          type: projetIdentificationData.typeProjet,
+          valeur: parseFloat(projetIdentificationData.valeurEstimee) || 0,
+          dateDebut: projetIdentificationData.dateDebut || '',
+          dateFin: '',
+          statut: 'Identification',
+          avancement: 0,
+          responsable: projetIdentificationData.clientContact,
+          ville: projetIdentificationData.ville,
+          description: projetIdentificationData.description || transcription
+        };
+
+        setProjets([...projets, newProjet]);
+
+        // Ajouter également comme interaction si un client existant
+        if (projetIdentificationData.clientNom) {
+          const matchingClient = clients.find(c =>
+            c.nom.toLowerCase().includes(projetIdentificationData.clientNom.toLowerCase())
+          );
+
+          if (matchingClient) {
+            const newInteraction = {
+              id: Date.now(),
+              date: new Date().toISOString(),
+              type: 'Identification de projet',
+              categorie: 'Opportunité',
+              contenu: projetInfo,
+              suiviRequis: true,
+              dateSuivi: '',
+              priorite: 'Haute'
+            };
+
+            setClientInteractions(prev => ({
+              ...prev,
+              [matchingClient.id]: [...(prev[matchingClient.id] || []), newInteraction]
+            }));
+
+            setClients(clients.map(c =>
+              c.id === matchingClient.id
+                ? { ...c, derniereInteraction: new Date().toISOString().split('T')[0] }
+                : c
+            ));
+          }
+        }
+
+        setShowProjetIdentificationModal(false);
+        setTranscription('');
+        setProjetIdentificationData({
+          nomProjet: '',
+          clientNom: '',
+          clientContact: '',
+          clientTelephone: '',
+          clientEmail: '',
+          typeProjet: 'Résidentiel',
+          valeurEstimee: '',
+          dateDebut: '',
+          ville: '',
+          adresse: '',
+          description: '',
+          besoins: '',
+          budget: '',
+          echeance: '',
+          concurrence: '',
+          probabilite: '50'
+        });
+        setVoiceActionType('');
       };
 
       // Composant KPI Card
@@ -1708,6 +1927,79 @@
                 </div>
               </form>
             )}
+          </Modal>
+
+          {/* Menu contextuel de dictée vocale */}
+          <Modal
+            isOpen={showVoiceMenu}
+            onClose={() => setShowVoiceMenu(false)}
+            title="Choisissez le type d'enregistrement"
+          >
+            <div className="space-y-3">
+              <p className="text-slate-600 text-sm mb-4">
+                Sélectionnez le type d'interaction que vous souhaitez enregistrer vocalement
+              </p>
+
+              <button
+                onClick={() => handleStartRecording('interaction')}
+                className="w-full text-left p-4 bg-white hover:bg-indigo-50 border-2 border-slate-200 hover:border-indigo-400 rounded-xl transition-all group"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
+                    <Icon name="mic" className="w-6 h-6 text-indigo-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-slate-900 mb-1">Interaction simple</h3>
+                    <p className="text-sm text-slate-600">
+                      Note rapide, appel téléphonique ou échange avec un client
+                    </p>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => handleStartRecording('compte-rendu')}
+                className="w-full text-left p-4 bg-white hover:bg-blue-50 border-2 border-slate-200 hover:border-blue-400 rounded-xl transition-all group"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="p-3 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
+                    <Icon name="document" className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-slate-900 mb-1">Compte-rendu détaillé</h3>
+                    <p className="text-sm text-slate-600">
+                      Résumé de réunion structuré avec points discutés et actions à suivre
+                    </p>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => handleStartRecording('projet')}
+                className="w-full text-left p-4 bg-white hover:bg-green-50 border-2 border-slate-200 hover:border-green-400 rounded-xl transition-all group"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="p-3 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
+                    <Icon name="building" className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-slate-900 mb-1">Identification de projet</h3>
+                    <p className="text-sm text-slate-600">
+                      Nouveau projet identifié lors d'une discussion avec un prospect
+                    </p>
+                  </div>
+                </div>
+              </button>
+
+              <div className="pt-3 border-t border-slate-200">
+                <button
+                  onClick={() => setShowVoiceMenu(false)}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors font-medium"
+                >
+                  Annuler
+                </button>
+              </div>
+            </div>
           </Modal>
 
           {/* Modal de sélection du client pour la dictée vocale */}
