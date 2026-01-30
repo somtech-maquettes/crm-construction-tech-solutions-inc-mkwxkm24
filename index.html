@@ -965,7 +965,7 @@ Probabilité de concrétisation: ${projetIdentificationData.probabilite}%`;
                     <h2 className="text-2xl font-display font-bold text-slate-900">Tableau de bord</h2>
                     <div className="flex items-center gap-3">
                       <button
-                        onClick={isRecording ? handleStopRecording : handleStartRecording}
+                        onClick={isRecording ? handleStopRecording : () => handleStartRecording()}
                         disabled={isWaitingPermission}
                         className={`${
                           isRecording
