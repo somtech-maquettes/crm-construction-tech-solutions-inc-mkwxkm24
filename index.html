@@ -266,10 +266,12 @@
 
       // États pour la dictée vocale et les interactions
       const [isRecording, setIsRecording] = React.useState(false);
+      const [isWaitingPermission, setIsWaitingPermission] = React.useState(false);
       const [transcription, setTranscription] = React.useState('');
       const [showClientSelectModal, setShowClientSelectModal] = React.useState(false);
       const [clientInteractions, setClientInteractions] = React.useState({});
       const [showInteractionModal, setShowInteractionModal] = React.useState(false);
+      const recognitionRef = React.useRef(null);
       const [interactionData, setInteractionData] = React.useState({
         clientId: null,
         type: 'Appel téléphonique',
@@ -421,6 +423,9 @@
         setShowVoiceMenu(false);
         setVoiceActionType(actionType);
 
+        // Indiquer qu'on attend la permission du microphone
+        setIsWaitingPermission(true);
+
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         const recognition = new SpeechRecognition();
 
@@ -428,9 +433,15 @@
         recognition.continuous = true;
         recognition.interimResults = false;
 
+        // Variable pour stocker la transcription locale
+        let localTranscript = '';
+
         recognition.onstart = () => {
+          setIsWaitingPermission(false);
           setIsRecording(true);
           setTranscription('');
+          localTranscript = '';
+          console.log('Enregistrement vocal démarré');
         };
 
         recognition.onresult = (event) => {
@@ -438,17 +449,35 @@
           for (let i = event.resultIndex; i < event.results.length; i++) {
             transcript += event.results[i][0].transcript + ' ';
           }
-          setTranscription(prev => prev + transcript);
+          localTranscript += transcript;
+          setTranscription(localTranscript);
+          console.log('Transcription en cours:', localTranscript);
         };
 
         recognition.onerror = (event) => {
           console.error('Erreur de reconnaissance vocale:', event.error);
           setIsRecording(false);
+          setIsWaitingPermission(false);
+
+          // Afficher un message d'erreur convivial
+          if (event.error === 'no-speech') {
+            alert('Aucune parole détectée. Veuillez réessayer.');
+          } else if (event.error === 'audio-capture') {
+            alert('Aucun microphone détecté. Veuillez vérifier vos paramètres audio.');
+          } else if (event.error === 'not-allowed') {
+            alert('Permission du microphone refusée. Veuillez autoriser l\'accès au microphone dans les paramètres de votre navigateur.');
+          } else {
+            alert('Erreur de reconnaissance vocale: ' + event.error);
+          }
         };
 
         recognition.onend = () => {
+          console.log('Enregistrement terminé. Transcription:', localTranscript);
           setIsRecording(false);
-          if (transcription.trim()) {
+          setIsWaitingPermission(false);
+
+          // Utiliser la transcription locale capturée
+          if (localTranscript.trim()) {
             // Rediriger vers le modal approprié selon le type d'action
             if (actionType === 'interaction') {
               setShowClientSelectModal(true);
@@ -457,17 +486,33 @@
             } else if (actionType === 'projet') {
               setShowProjetIdentificationModal(true);
             }
+          } else {
+            alert('Aucun texte n\'a été transcrit. Veuillez réessayer.');
           }
         };
 
-        recognition.start();
-        window.currentRecognition = recognition;
+        try {
+          recognition.start();
+          recognitionRef.current = recognition;
+          console.log('Démarrage de la reconnaissance vocale...');
+        } catch (error) {
+          console.error('Erreur lors du démarrage:', error);
+          setIsRecording(false);
+          setIsWaitingPermission(false);
+          alert('Impossible de démarrer l\'enregistrement: ' + error.message);
+        }
       };
 
       const handleStopRecording = () => {
-        if (window.currentRecognition) {
-          window.currentRecognition.stop();
+        if (recognitionRef.current) {
+          try {
+            recognitionRef.current.stop();
+            console.log('Arrêt de l\'enregistrement demandé');
+          } catch (error) {
+            console.error('Erreur lors de l\'arrêt:', error);
+          }
           setIsRecording(false);
+          setIsWaitingPermission(false);
         }
       };
 
@@ -921,10 +966,19 @@ Probabilité de concrétisation: ${projetIdentificationData.probabilite}%`;
                     <div className="flex items-center gap-3">
                       <button
                         onClick={isRecording ? handleStopRecording : handleStartRecording}
-                        className={`${isRecording ? 'bg-red-600 hover:bg-red-700 animate-pulse' : 'bg-green-600 hover:bg-green-700'} text-white px-4 py-2 rounded-lg flex items-center gap-2 font-medium transition-colors`}
+                        disabled={isWaitingPermission}
+                        className={`${
+                          isRecording
+                            ? 'bg-red-600 hover:bg-red-700 animate-pulse'
+                            : isWaitingPermission
+                            ? 'bg-yellow-600 cursor-wait'
+                            : 'bg-green-600 hover:bg-green-700'
+                        } text-white px-4 py-2 rounded-lg flex items-center gap-2 font-medium transition-colors disabled:opacity-90`}
                       >
                         <Icon name="mic" className="w-5 h-5" />
-                        <span className="hidden sm:inline">{isRecording ? 'Arrêter' : 'Dictée vocale'}</span>
+                        <span className="hidden sm:inline">
+                          {isRecording ? 'Arrêter' : isWaitingPermission ? 'Autorisation...' : 'Dictée vocale'}
+                        </span>
                       </button>
                       <button onClick={() => setShowAddModal(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 font-medium transition-colors">
                         <Icon name="plus" className="w-5 h-5" />
