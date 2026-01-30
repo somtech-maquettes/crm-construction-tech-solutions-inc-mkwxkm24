@@ -408,14 +408,15 @@
 
       // Gérer la dictée vocale
       const handleStartRecording = (actionType = '') => {
-        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-          alert('La reconnaissance vocale n\'est pas supportée par votre navigateur. Veuillez utiliser Chrome ou Edge.');
-          return;
-        }
-
         // Si pas de type d'action spécifié, ouvrir le menu
         if (!actionType) {
           setShowVoiceMenu(true);
+          return;
+        }
+
+        // Vérifier le support de la reconnaissance vocale uniquement quand on démarre l'enregistrement
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+          alert('La reconnaissance vocale n\'est pas supportée par votre navigateur. Veuillez utiliser Chrome ou Edge.');
           return;
         }
 
